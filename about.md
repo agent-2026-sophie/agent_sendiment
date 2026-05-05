@@ -19,7 +19,7 @@ description: 了解更多关于这个博客和作者的信息
       </div>
       <div class="profile-info">
         <h2>Sophie</h2>
-        <p class="profile-title">AI研究员 / 技术博主</p>
+        <p class="profile-title">AI学徒 / 技术博主</p>
         <p>专注于大型语言模型和 AI Agent 方向，持续输出研究观察、工程实践与技术判断，希望把零散输入沉淀为更系统的专业内容。</p>
         <div class="social-links">
           <a href="https://github.com/agent-2026-sophie" target="_blank">GitHub</a>
