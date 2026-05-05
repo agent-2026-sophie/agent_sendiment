@@ -1,155 +1,62 @@
 ---
 layout: default
 title: LLM追踪
-description: 追踪大型语言模型的最新进展、性能排行和技术趋势
+description: 面向博客写作的 LLM 专栏，记录模型进展、研究解读与工程实践
 ---
 
 <section class="page-header">
   <div class="container">
-    <h1>LLM追踪</h1>
-    <p>关注大型语言模型的最新进展、性能排行和技术趋势</p>
-  </div>
-</section>
-
-<section class="llm-ranking">
-  <div class="container">
-    <h2>模型排行榜</h2>
-    <p class="section-subtitle">基于推理能力的模型排名（2026年4月数据）</p>
-    
-    <div class="filter-bar">
-      <select id="category-filter">
-        <option value="all">全部类别</option>
-        <option value="logic">推理</option>
-        <option value="coding">代码</option>
-        <option value="math">数学</option>
-        <option value="reading">阅读理解</option>
-      </select>
-    </div>
-    
-    <div class="rank-table-container">
-      <table class="rank-table full">
-        <thead>
-          <tr>
-            <th>排名</th>
-            <th>模型名称</th>
-            <th>极限分数</th>
-            <th>中位分数</th>
-            <th>中位差距</th>
-            <th>变更</th>
-            <th>测试成本</th>
-            <th>发布时间</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="top-rank">
-            <td>1</td>
-            <td>GPT-5.5 (xhigh)</td>
-            <td>86.76</td>
-            <td>83.96</td>
-            <td>3.22%</td>
-            <td class="positive">+3.4%</td>
-            <td>¥140.62</td>
-            <td>26-04-24</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>GPT-5.4 (high)</td>
-            <td>83.85</td>
-            <td>79.56</td>
-            <td>5.12%</td>
-            <td class="negative">-</td>
-            <td>¥52.51</td>
-            <td>26-03-06</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Gemini 3.1 Pro (high)</td>
-            <td>82.83</td>
-            <td>72.16</td>
-            <td>12.87%</td>
-            <td class="positive">+5.8%</td>
-            <td>¥54.84</td>
-            <td>26-02-19</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>Claude Opus 4.6(Think)</td>
-            <td>81.19</td>
-            <td>77.23</td>
-            <td>4.87%</td>
-            <td class="negative">-</td>
-            <td>¥161.63</td>
-            <td>26-02-06</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>DeepSeek V4 Pro(max)</td>
-            <td>79.31</td>
-            <td>70.49</td>
-            <td>11.12%</td>
-            <td class="negative">-</td>
-            <td>¥33.95</td>
-            <td>26-04-24</td>
-          </tr>
-          <tr>
-            <td>6</td>
-            <td>Kimi-K2.6 (Think)</td>
-            <td>74.91</td>
-            <td>57.33</td>
-            <td>23.46%</td>
-            <td class="positive">+4.8%</td>
-            <td>¥25.86</td>
-            <td>26-04-20</td>
-          </tr>
-          <tr>
-            <td>7</td>
-            <td>GLM-5.1 (Think)</td>
-            <td>74.71</td>
-            <td>64.37</td>
-            <td>13.83%</td>
-            <td class="positive">+8.5%</td>
-            <td>¥19.90</td>
-            <td>26-04-08</td>
-          </tr>
-          <tr>
-            <td>8</td>
-            <td>Doubao-Seed-2.0-pro (high)</td>
-            <td>73.12</td>
-            <td>66.02</td>
-            <td>9.72%</td>
-            <td class="positive">+23.3%</td>
-            <td>¥16.40</td>
-            <td>26-02-14</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <h1>LLM 专栏</h1>
+    <p>记录模型演化、论文阅读、训练推理、应用落地与个人判断。</p>
   </div>
 </section>
 
 <section class="llm-trends">
   <div class="container">
-    <h2>技术趋势</h2>
+    <h2>适合持续写作的主题</h2>
     <div class="trends-grid">
       <div class="trend-card">
-        <div class="trend-icon">📈</div>
-        <h3>模型规模持续增长</h3>
-        <p>大型语言模型的参数规模不断扩大，百亿、千亿甚至万亿参数模型成为主流</p>
+        <div class="trend-icon">🔍</div>
+        <h3>模型发布观察</h3>
+        <p>记录重要模型版本更新、能力边界、价格变化与个人试用结论。</p>
       </div>
       <div class="trend-card">
-        <div class="trend-icon">⚡</div>
-        <h3>推理速度优化</h3>
-        <p>通过量化、蒸馏、稀疏化等技术，模型推理速度大幅提升</p>
+        <div class="trend-icon">📄</div>
+        <h3>论文拆解</h3>
+        <p>用博客形式解释论文动机、关键方法、实验设计与值得关注的细节。</p>
       </div>
       <div class="trend-card">
-        <div class="trend-icon">🔄</div>
-        <h3>上下文长度突破</h3>
-        <p>上下文窗口从k级提升到百万级token，支持更长对话和文档处理</p>
+        <div class="trend-icon">⚙️</div>
+        <h3>推理与部署</h3>
+        <p>聚焦上下文、延迟、吞吐、成本和服务化落地中的工程权衡。</p>
       </div>
       <div class="trend-card">
-        <div class="trend-icon">🔌</div>
-        <h3>多模态能力增强</h3>
-        <p>模型整合文本、图像、音频、视频等多种模态信息</p>
+        <div class="trend-icon">🧪</div>
+        <h3>评测与方法论</h3>
+        <p>输出自己的评估框架，而不是简单转载数据表或排行榜结论。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="knowledge-resources">
+  <div class="container">
+    <h2>写作建议</h2>
+    <div class="resources-grid">
+      <div class="resource-card">
+        <div class="resource-icon">1</div>
+        <h3>先写判断</h3>
+        <p>每篇文章优先输出你的核心观点，再补充事实、对比与证据。</p>
+      </div>
+      <div class="resource-card">
+        <div class="resource-icon">2</div>
+        <h3>再写证据</h3>
+        <p>把实验、引用、截图、推理过程组织成可复查的结构。</p>
+      </div>
+      <div class="resource-card">
+        <div class="resource-icon">3</div>
+        <h3>最后沉淀模板</h3>
+        <p>把高质量文章逐步固化成你自己的写作模板和分析框架。</p>
       </div>
     </div>
   </div>

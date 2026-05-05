@@ -15,14 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  const filterSelect = document.getElementById('category-filter');
-  if (filterSelect) {
-    filterSelect.addEventListener('change', function() {
-      const selectedCategory = this.value;
-      console.log('Filtering by:', selectedCategory);
-    });
-  }
-  
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
       e.preventDefault();
