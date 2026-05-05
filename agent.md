@@ -134,7 +134,7 @@ description: 面向博客写作的 Agent 专栏，聚焦系统设计、应用案
             {% endif %}
           </div>
         </article>
-      {% empty %}
+      {% else %}
         <p>暂无Agent相关文章，敬请期待！</p>
       {% endfor %}
     </div>
