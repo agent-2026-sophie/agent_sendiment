@@ -1,0 +1,40 @@
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <a href="{{ "/" | relative_url }}" class="logo">
+        <span class="logo-icon">🤖</span>
+        <span class="logo-text">{{ site.title }}</span>
+      </a>
+      
+      <nav class="nav" role="navigation">
+        <ul class="nav-list">
+          {% for page in site.header_pages %}
+            {% assign p = site.pages | where: "path", page | first %}
+            <li class="nav-item">
+              <a href="{{ p.url | relative_url }}" class="nav-link {% if page.url == p.url %}active{% endif %}">
+                {{ p.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      
+      <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="mobile-nav">
+    <ul class="mobile-nav-list">
+      {% for page in site.header_pages %}
+        {% assign p = site.pages | where: "path", page | first %}
+        <li>
+          <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</header>

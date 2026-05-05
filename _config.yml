@@ -1,0 +1,61 @@
+title: LLM & Agent Research
+description: 追踪LLM、Agent前沿发展，沉淀个人专业知识，创作技术博客
+url: "https://agent-2026-sophie.github.io"
+baseurl: ""
+
+theme: minima
+
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
+
+paginate: 10
+paginate_path: "/page:num/"
+
+author:
+  name: Sophie
+  email: sophie@example.com
+  github: agent-2026-sophie
+
+header_pages:
+  - index.md
+  - llm.md
+  - agent.md
+  - knowledge.md
+  - about.md
+
+timezone: Asia/Shanghai
+
+highlighter: rouge
+
+collections:
+  llm_posts:
+    output: true
+    permalink: /llm/:name/
+  agent_posts:
+    output: true
+    permalink: /agent/:name/
+  knowledge_posts:
+    output: true
+    permalink: /knowledge/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: llm_posts
+    values:
+      layout: post
+      category: LLM
+  - scope:
+      path: ""
+      type: agent_posts
+    values:
+      layout: post
+      category: Agent
+  - scope:
+      path: ""
+      type: knowledge_posts
+    values:
+      layout: post
+      category: Knowledge
