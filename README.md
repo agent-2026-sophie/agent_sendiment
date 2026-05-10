@@ -1,167 +1,189 @@
 # agent_sendiment
 
-一个围绕 `LLM`、`Agent` 和个人技术沉淀构建的静态博客网站。
+一个围绕 `LLM`、`Agent`、模型评测与个人研究沉淀构建的 Jekyll 静态博客。
+
+线上地址：
+
+```text
+https://agent-2026-sophie.github.io/agent_sendiment/
+```
 
 ## 项目定位
 
-这个仓库的目标不是做排行榜或数据看板，而是做一个可长期维护的专业博客：
+这个仓库用于维护一个可长期更新的个人技术博客，而不是排行榜、数据看板或临时 Demo。
 
-- 跟踪 LLM、Agent 的前沿发展
-- 发布专题文章、研究笔记与工程复盘
-- 沉淀长期可复用的知识卡片和写作模板
-- 建立持续更新的个人技术品牌站点
+- 追踪 LLM、Agent、模型评测等方向的前沿进展
+- 发布专题文章、研究笔记、工程复盘与方法总结
+- 通过 Markdown 维护内容，通过 layout 统一渲染页面结构
+- 使用 GitHub Actions 自动构建并发布到 GitHub Pages
+
+## 当前功能
+
+- 首页以时间线方式展示所有文章
+- 侧边栏提供站点导航、年度更新热度图、GitHub/Gmail 链接
+- 侧边栏支持展开和收起
+- 搜索以悬浮层形式打开，输入关键词并按 Enter 后执行全文搜索
+- 搜索结果会匹配文章正文，并高亮命中的搜索词
+- 文章数量、单篇字数、总字数、更新热度图均由真实文章内容自动计算
+- CSS/JS 使用构建时间版本参数，降低 GitHub Pages 或浏览器缓存导致的样式不同步问题
 
 ## 站点结构
 
 - `index.md`
-  首页，展示博客定位、栏目入口和最新文章
+  首页，使用 `home` layout，展示文章时间线和搜索入口。
 - `llm.md`
-  LLM 专栏页，适合发布模型观察、论文拆解、推理与部署实践
+  模型栏目页，绑定 `_llm_posts/`。
 - `agent.md`
-  Agent 专栏页，适合发布系统设计、工作流、工具使用与评估内容
-- `knowledge.md`
-  知识库页面，沉淀概念卡片、学习路径和方法论
+  Agent 栏目页，绑定 `_agent_posts/`。
+- `evals.md`
+  评测栏目页，当前标题为“评测”，绑定 `_evals_posts/`。
 - `about.md`
-  关于页面，介绍博客定位与更新计划
+  关于页面，使用通用页面布局并保留侧边栏。
+
+主要布局文件：
+
+- `_layouts/default.html`
+  全站基础 HTML、CSS/JS 引入、页头和页脚。
+- `_layouts/home.html`
+  首页时间线、搜索数据渲染。
+- `_layouts/collection.html`
+  模型、Agent、评测等栏目页。
+- `_layouts/post.html`
+  文章详情页。
+- `_layouts/page.html`
+  普通页面布局。
+
+主要组件：
+
+- `_includes/header.html`
+  顶部标题区域。
+- `_includes/sidebar.html`
+  导航、更新热度图、社交链接。
+- `_includes/footer.html`
+  动态年份、作者、文章数和总字数。
 
 ## 内容目录
 
+当前可见栏目对应的文章目录：
+
 - `_llm_posts/`
-  LLM 相关文章
+  模型、LLM、推理、部署、论文和产品观察。
 - `_agent_posts/`
-  Agent 相关文章
-- `_knowledge_posts/`
-  知识沉淀类文章
+  Agent 架构、工作流、工具使用、记忆系统和工程实践。
+- `_evals_posts/`
+  模型评测、评估方法、评测集、指标和实验记录。
 
-现在文章按 `年/月/文件.md` 组织，例如：
-
-```text
-_llm_posts/2026/05/2026-05-05-agent-memory-design.md
-_agent_posts/2026/05/2026-05-05-agent-workflow-notes.md
-_knowledge_posts/2026/05/2026-05-05-llm-learning-map.md
-```
-
-## 日常更新流程
-
-后续维护这个博客，推荐固定按下面的顺序来：
-
-1. 拉取最新代码
-
-```bash
-git pull origin main
-```
-
-2. 本地启动预览
-
-```bash
-bundle exec jekyll serve
-```
-
-3. 浏览器查看效果
+文章按 `年/月/文件.md` 组织，例如：
 
 ```text
-http://localhost:4000/agent_sendiment/
+_llm_posts/2026/04/2026-04-24-gpt55-release.md
+_agent_posts/2026/04/2026-04-20-agent-framework-comparison.md
+_evals_posts/2026/04/2026-04-15-llm-learning-path.md
 ```
 
-4. 修改文章或页面
+## 新增文章
 
-- 新增博客文章：修改 `_llm_posts/`、`_agent_posts/`、`_knowledge_posts/`
-- 修改栏目页面：修改 `index.md`、`llm.md`、`agent.md`、`knowledge.md`、`about.md`
-
-5. 提交并推送
-
-```bash
-git add .
-git commit -m "Add new blog post"
-git push origin main
-```
-
-6. 等待 GitHub Pages / GitHub Actions 自动部署
-
-- 推送到 `main` 后，线上站点会自动重新发布
-- 正式发布地址：`https://agent-2026-sophie.github.io/agent_sendiment/`
-
-## 如何新增一篇文章
-
-目前站点按内容类型区分目录：
-
-- `LLM` 文章：放到 `_llm_posts/`
-- `Agent` 文章：放到 `_agent_posts/`
-- `知识沉淀`：放到 `_knowledge_posts/`
-
-新文章会放到对应目录下的 `年份/月` 子目录中。
-
-文件名格式：
+文件名建议使用：
 
 ```text
 YYYY-MM-DD-title.md
 ```
 
-例如：
-
-```text
-2026-05-05-agent-memory-design.md
-```
-
-推荐直接用命令行脚本创建：
-
-```bash
-./scripts/new_post.sh llm "agent-memory-design"
-./scripts/new_post.sh agent "tool-calling-best-practices"
-./scripts/new_post.sh knowledge "llm-learning-path"
-```
-
-脚本会自动：
-
-- 根据当前日期创建 `年/月` 目录
-- 自动生成日期前缀文件名
-- 写入基础 front matter 和正文模板
-
-例如在 2026 年 5 月 5 日执行：
-
-```bash
-./scripts/new_post.sh llm "agent-memory-design"
-```
-
-会创建：
-
-```text
-_llm_posts/2026/05/2026-05-05-agent-memory-design.md
-```
-
-如果你不想用脚本，也可以手动新建文件。文章模板可以参考下面这份：
+文章 front matter 示例：
 
 ```md
 ---
-title: Agent 记忆系统设计笔记
-date: 2026-05-05
-author: Sophie
-tags: [Agent, Memory, Architecture]
-excerpt: 记录 Agent 记忆系统的设计思路、常见方案和工程权衡。
+title: 主流 Agent 框架对比分析
+date: 2026-04-20
+author: Sophie Wu
+tags: [Agent, Framework, Architecture]
+excerpt: 对比分析当前主流的 AI Agent 开发框架，帮助开发者选择合适的工具。
 ---
 
 ## 背景
 
-这里写文章正文。
+这里写文章背景。
 
-## 核心问题
+## 核心分析
 
-这里写你的分析。
+这里写正文。
 
-## 我的结论
+## 总结
 
-这里写你的判断和总结。
+这里写结论。
 ```
 
-## 本地预览与线上部署的区别
+也可以使用脚本创建部分类型的文章：
 
-- `http://localhost:4000/agent_sendiment/` 是本地预览地址，只能在你自己的电脑上访问
-- `https://agent-2026-sophie.github.io/agent_sendiment/` 是正式线上地址，发布后不依赖你的本机运行
-- 本机关机、断网，已经发布到 GitHub Pages 的网站仍然可以访问
+```bash
+./scripts/new_post.sh llm "gpt55-release"
+./scripts/new_post.sh agent "agent-framework-comparison"
+./scripts/new_post.sh evals "benchmark-notes"
+```
 
-## 换一台电脑继续维护
+脚本支持 `llm`、`agent`、`evals` 三类，会自动写入对应 collection 目录。
 
-如果以后换一台机器，也可以继续维护这个博客。基本流程如下：
+## 本地预览
+
+首次使用先安装依赖：
+
+```bash
+bundle install
+```
+
+启动本地预览：
+
+```bash
+bundle exec jekyll serve
+```
+
+浏览器访问：
+
+```text
+http://localhost:4000/agent_sendiment/
+```
+
+如果修改了 `_config.yml`，需要重启 `bundle exec jekyll serve`，因为 Jekyll 本地服务通常不会自动重新加载配置文件。
+
+## 发布流程
+
+日常更新推荐流程：
+
+```bash
+git pull origin main
+bundle exec jekyll serve
+git add .
+git commit -m "Update blog"
+git push origin main
+```
+
+推送到 `main` 后，`.github/workflows/pages.yml` 会自动触发 GitHub Actions：
+
+1. 拉取仓库代码
+2. 配置 GitHub Pages
+3. 安装 Ruby 和 Bundler 依赖
+4. 执行 `bundle exec jekyll build`
+5. 上传 `_site` 产物
+6. 部署到 GitHub Pages
+
+GitHub Pages 设置应使用：
+
+- Source: `GitHub Actions`
+- Workflow: `.github/workflows/pages.yml`
+
+不要再使用旧的 `Branch: main` / `Folder: / (root)` 分支发布方式，否则可能和 Actions 部署产物不一致。
+
+## 本地与线上差异
+
+- 本地地址 `http://localhost:4000/agent_sendiment/` 只在自己的电脑上可访问。
+- 线上地址 `https://agent-2026-sophie.github.io/agent_sendiment/` 由 GitHub Pages 托管。
+- `git push` 成功后，还需要等待 GitHub Actions 构建和部署完成。
+- GitHub Pages 和浏览器可能缓存静态资源；如果线上看起来还是旧样式，优先尝试 `Cmd + Shift + R` 强制刷新或使用无痕窗口。
+- 当前 CSS/JS 链接已带 `?v={{ site.time }}` 构建版本参数，后续 push 后资源缓存问题会减少。
+
+## 换电脑维护
+
+在新机器上继续维护：
 
 ```bash
 git clone git@github.com:agent-2026-sophie/agent_sendiment.git
@@ -176,46 +198,14 @@ bundle exec jekyll serve
 http://localhost:4000/agent_sendiment/
 ```
 
-只要新机器安装好了 Ruby、Bundler 和项目依赖，就可以继续写作、预览和发布。
-
-## 本地预览
-
-在仓库根目录执行：
-
-```bash
-bundle install
-bundle exec jekyll serve
-```
-
-本地访问：
-
-```bash
-http://localhost:4000/agent_sendiment/
-```
-
-## 部署方式
-
-仓库名已设为 `agent_sendiment`，部署到 GitHub Pages 后，访问地址通常为：
-
-```text
-https://agent-2026-sophie.github.io/agent_sendiment/
-```
-
-GitHub Pages 建议配置：
-
-- Branch: `main`
-- Folder: `/ (root)`
+只要安装好 Ruby、Bundler 和项目依赖，就可以继续写作、预览和发布。
 
 ## 技术栈
 
 - Jekyll
+- Liquid
 - GitHub Pages
+- GitHub Actions
 - HTML
 - CSS
 - JavaScript
-
-## 后续建议
-
-- 每周更新前沿观察或产品体验
-- 每月输出一篇专题长文
-- 持续补充知识库页面与模板文章

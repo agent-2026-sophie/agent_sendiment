@@ -1,6 +1,6 @@
 {% assign empty_posts = "" | split: "," %}
 {% assign evals_posts = site.evals_posts | default: empty_posts %}
-{% assign footer_posts = site.llm_posts | concat: site.agent_posts | concat: site.knowledge_posts | concat: evals_posts %}
+{% assign footer_posts = site.llm_posts | concat: site.agent_posts | concat: evals_posts %}
 {% assign footer_total_posts = footer_posts | size %}
 {% assign footer_total_words = 0 %}
 {% for post in footer_posts %}

@@ -4,7 +4,7 @@ layout: default
 
 {% assign empty_posts = "" | split: "," %}
 {% assign evals_posts = site.evals_posts | default: empty_posts %}
-{% assign all_posts = site.llm_posts | concat: site.agent_posts | concat: site.knowledge_posts | concat: evals_posts | sort: 'date' | reverse %}
+{% assign all_posts = site.llm_posts | concat: site.agent_posts | concat: evals_posts | sort: 'date' | reverse %}
 
 <div class="container site-layout">
   <button class="sidebar-toggle" type="button" aria-expanded="true">收起目录</button>

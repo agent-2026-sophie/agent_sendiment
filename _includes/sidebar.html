@@ -1,6 +1,6 @@
 {% assign empty_posts = "" | split: "," %}
 {% assign evals_posts = site.evals_posts | default: empty_posts %}
-{% assign sidebar_posts = site.llm_posts | concat: site.agent_posts | concat: site.knowledge_posts | concat: evals_posts | sort: 'date' | reverse %}
+{% assign sidebar_posts = site.llm_posts | concat: site.agent_posts | concat: evals_posts | sort: 'date' | reverse %}
 
 <aside class="site-sidebar">
   <nav class="sidebar-section" aria-label="站点导航">

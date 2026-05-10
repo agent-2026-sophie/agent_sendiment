@@ -19,7 +19,7 @@ header_pages:
   - index.md
   - llm.md
   - agent.md
-  - knowledge.md
+  - evals.md
   - about.md
 
 timezone: Asia/Shanghai
@@ -33,9 +33,6 @@ collections:
   agent_posts:
     output: true
     permalink: /agent/:name/
-  knowledge_posts:
-    output: true
-    permalink: /knowledge/:name/
   evals_posts:
     output: true
     permalink: /evals/:name/
@@ -53,12 +50,6 @@ defaults:
     values:
       layout: post
       category: Agent
-  - scope:
-      path: ""
-      type: knowledge_posts
-    values:
-      layout: post
-      category: Knowledge
   - scope:
       path: ""
       type: evals_posts

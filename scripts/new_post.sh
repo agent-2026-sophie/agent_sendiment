@@ -3,8 +3,8 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: ./scripts/new_post.sh <llm|agent|knowledge> <slug>"
-  echo "Example: ./scripts/new_post.sh llm agent-memory-design"
+  echo "Usage: ./scripts/new_post.sh <llm|agent|evals> <slug>"
+  echo "Example: ./scripts/new_post.sh evals benchmark-notes"
 }
 
 if [ "$#" -ne 2 ]; then
@@ -31,12 +31,12 @@ case "$category" in
     base_dir="_agent_posts"
     post_category="Agent"
     ;;
-  knowledge)
-    base_dir="_knowledge_posts"
-    post_category="Knowledge"
+  evals)
+    base_dir="_evals_posts"
+    post_category="Evaluation"
     ;;
   *)
-    echo "Error: category must be one of: llm, agent, knowledge"
+    echo "Error: category must be one of: llm, agent, evals"
     usage
     exit 1
     ;;
