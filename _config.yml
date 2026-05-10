@@ -11,7 +11,7 @@ plugins:
   - jekyll-paginate
 
 author:
-  name: Sophie
+  name: Sophie Wu
   email: sophie@example.com
   github: agent-2026-sophie
 
@@ -36,6 +36,9 @@ collections:
   knowledge_posts:
     output: true
     permalink: /knowledge/:name/
+  evals_posts:
+    output: true
+    permalink: /evals/:name/
 
 defaults:
   - scope:
@@ -56,3 +59,9 @@ defaults:
     values:
       layout: post
       category: Knowledge
+  - scope:
+      path: ""
+      type: evals_posts
+    values:
+      layout: post
+      category: Evaluation

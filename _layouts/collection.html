@@ -1,0 +1,46 @@
+---
+layout: default
+---
+
+{% assign collection_posts = site[page.collection] %}
+{% if collection_posts %}
+  {% assign posts = collection_posts | sort: 'date' | reverse %}
+{% else %}
+  {% assign posts = "" | split: "," %}
+{% endif %}
+
+<div class="container site-layout">
+  <button class="sidebar-toggle" type="button" aria-expanded="true">收起目录</button>
+  {% include sidebar.html %}
+
+  <main class="content-column">
+    <section class="page-intro">
+      <h1>{{ page.heading | default: page.title }}</h1>
+      {{ content }}
+    </section>
+
+    <section class="posts-grid">
+      {% for post in posts %}
+        {% assign post_words = post.content | strip_html | strip_newlines | remove: " " | remove: "　" | size %}
+        {% if post_words >= 1000 %}
+          {% assign post_word_tenths = post_words | times: 10 | plus: 500 | divided_by: 1000 %}
+          {% assign post_word_k_integer = post_word_tenths | divided_by: 10 %}
+          {% assign post_word_k_decimal = post_word_tenths | modulo: 10 %}
+          {% assign post_word_label = post_word_k_integer | append: "." | append: post_word_k_decimal | append: "k" %}
+        {% else %}
+          {% assign post_word_label = post_words %}
+        {% endif %}
+        <a href="{{ post.url | relative_url }}" class="post-card">
+          <div class="post-meta-top">
+            <span class="post-tag">{{ post.category }}</span>
+            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }} · {{ post_word_label }} 字</span>
+          </div>
+          <h3>{{ post.title }}</h3>
+          <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 150 }}</p>
+        </a>
+      {% else %}
+        <p style="color: var(--text-muted);">暂无相关文章。</p>
+      {% endfor %}
+    </section>
+  </main>
+</div>

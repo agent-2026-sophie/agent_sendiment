@@ -1,32 +1,28 @@
+{% assign empty_posts = "" | split: "," %}
+{% assign evals_posts = site.evals_posts | default: empty_posts %}
+{% assign footer_posts = site.llm_posts | concat: site.agent_posts | concat: site.knowledge_posts | concat: evals_posts %}
+{% assign footer_total_posts = footer_posts | size %}
+{% assign footer_total_words = 0 %}
+{% for post in footer_posts %}
+  {% assign footer_words = post.content | strip_html | strip_newlines | remove: " " | remove: "　" | size %}
+  {% assign footer_total_words = footer_total_words | plus: footer_words %}
+{% endfor %}
+{% assign footer_word_tenths = footer_total_words | times: 10 | plus: 500 | divided_by: 1000 %}
+{% assign footer_word_k_integer = footer_word_tenths | divided_by: 10 %}
+{% assign footer_word_k_decimal = footer_word_tenths | modulo: 10 %}
+
 <footer class="footer">
   <div class="container">
     <div class="footer-content">
-      <div class="footer-section">
-        <h3>{{ site.title }}</h3>
-        <p>{{ site.description }}</p>
+      <div class="footer-stats">
+        <span>&copy; {{ site.time | date: "%Y" }}</span>
+        <span class="footer-heart" aria-label="love">♥</span>
+        <span>{{ site.author.name }}</span>
+        <span class="footer-separator">|</span>
+        <span>文章 {{ footer_total_posts }} 篇</span>
+        <span class="footer-separator">|</span>
+        <span>总字数 {{ footer_word_k_integer }}.{{ footer_word_k_decimal }}k</span>
       </div>
-      
-      <div class="footer-section">
-        <h4>快速链接</h4>
-        <ul>
-          {% for page in site.header_pages %}
-            {% assign p = site.pages | where: "path", page | first %}
-            <li><a href="{{ p.url | relative_url }}">{{ p.title }}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-      
-      <div class="footer-section">
-        <h4>联系方式</h4>
-        <ul>
-          <li><a href="https://github.com/{{ site.author.github }}" target="_blank">GitHub</a></li>
-          <li><a href="mailto:{{ site.author.email }}">Email</a></li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; {{ site.time | date: "%Y" }} {{ site.author.name }}. All rights reserved.</p>
     </div>
   </div>
 </footer>
