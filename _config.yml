@@ -1,4 +1,4 @@
-title: LLM & Agent Research
+title: "LLM & Agent Research"
 description: 追踪LLM、Agent前沿发展，沉淀个人专业知识，创作技术博客
 url: "https://agent-2026-sophie.github.io"
 baseurl: "/agent_sendiment"
@@ -8,6 +8,7 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-paginate
 
 author:
   name: Sophie
