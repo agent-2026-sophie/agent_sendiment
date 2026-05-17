@@ -12,43 +12,53 @@ layout: default
   {% assign page_word_label = page_words %}
 {% endif %}
 
-<div class="container site-layout">
-  <button class="sidebar-toggle" type="button" aria-expanded="true">收起目录</button>
-  {% include sidebar.html %}
-
-  <article class="post content-column post-shell">
-    <header class="post-header">
-      <div class="post-header-tag">
-        <span class="post-tag">{{ page.category }}</span>
-      </div>
-      <h1 class="post-title">
-        {{ page.title }}
-      </h1>
-      <div class="post-meta-line">
-        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y年%m月%d日" }}</time>
-        {% if page.author %}
-          <span class="post-meta-separator">|</span>
-          <span>{{ page.author }}</span>
-        {% endif %}
-        <span class="post-meta-separator">|</span>
-        <span>{{ page_word_label }} 字</span>
-      </div>
-    </header>
-
-    <div class="post-content">
-      {{ content }}
-    </div>
-
-    {% if page.tags %}
-      <footer class="post-footer">
-        <div class="post-tags">
-          {% for tag in page.tags %}
-            <span class="post-tag-chip">
-              #{{ tag }}
-            </span>
-          {% endfor %}
+<div class="container post-container">
+  <div class="post-layout-wrapper">
+    <article class="post-main-content">
+      <header class="post-header">
+        <div class="post-header-tag">
+          <span class="post-tag">{{ page.category }}</span>
         </div>
-      </footer>
-    {% endif %}
-  </article>
+        <h1 class="post-title">
+          {{ page.title }}
+        </h1>
+        <div class="post-meta-line">
+          <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y年%m月%d日" }}</time>
+          {% if page.author %}
+            <span class="post-meta-separator">|</span>
+            <span>{{ page.author }}</span>
+          {% endif %}
+          <span class="post-meta-separator">|</span>
+          <span>{{ page_word_label }} 字</span>
+        </div>
+      </header>
+
+      <div class="post-content">
+        {{ content }}
+      </div>
+
+      {% if page.tags %}
+        <footer class="post-footer">
+          <div class="post-tags">
+            {% for tag in page.tags %}
+              <span class="post-tag-chip">
+                #{{ tag }}
+              </span>
+            {% endfor %}
+          </div>
+        </footer>
+      {% endif %}
+    </article>
+
+    <aside class="post-sidebar">
+      <div class="post-sidebar-sticky">
+        <div class="post-outline" data-post-toc hidden>
+          <h3 class="post-outline-title">本文目录</h3>
+          <nav class="post-toc-nav">
+            <ul class="post-toc-list" data-post-toc-list></ul>
+          </nav>
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>

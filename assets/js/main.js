@@ -1,155 +1,107 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-  const mobileNav = document.querySelector('.mobile-nav');
-  
-  if (mobileMenuToggle && mobileNav) {
-    mobileMenuToggle.addEventListener('click', function() {
-      mobileNav.classList.toggle('active');
+  const input = document.querySelector('[data-search-input]');
+  const results = document.querySelectorAll('.search-result');
+  const empty = document.querySelector('.search-empty');
+  const overlay = document.getElementById('searchOverlay');
+  const toggle = document.querySelector('.search-toggle');
+
+  const highlightText = function(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  };
+
+  const getMatchedSnippet = function(item, query) {
+    const fallback = item.dataset.searchExcerpt || '';
+    const body = item.dataset.searchBody || fallback;
+    const normalizedBody = body.toLowerCase();
+    const index = normalizedBody.indexOf(query);
+
+    if (index === -1) return fallback;
+
+    const radius = 58;
+    const start = Math.max(0, index - radius);
+    const end = Math.min(body.length, index + query.length + radius);
+    const prefix = start > 0 ? '...' : '';
+    const suffix = end < body.length ? '...' : '';
+
+    return prefix + body.slice(start, end) + suffix;
+  };
+
+  const resetResults = function() {
+    results.forEach(item => {
+      const title = item.querySelector('.search-result-title');
+      const excerpt = item.querySelector('.search-result-excerpt');
+
+      item.hidden = true;
+      if (title) title.textContent = item.dataset.searchTitle || '';
+      if (excerpt) excerpt.textContent = item.dataset.searchExcerpt || '';
     });
-  }
-  
-  const navLinks = document.querySelectorAll('.mobile-nav-list a');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function() {
-      mobileNav.classList.remove('active');
-    });
-  });
-  
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  });
 
-  const timelineSearch = document.querySelector('[data-timeline-search]');
-  if (timelineSearch) {
-    const toggle = timelineSearch.querySelector('.search-toggle');
-    const overlay = timelineSearch.querySelector('.search-overlay');
-    const input = timelineSearch.querySelector('.timeline-search-input');
-    const results = Array.from(timelineSearch.querySelectorAll('.search-result'));
-    const empty = timelineSearch.querySelector('.search-empty');
-    const closeTriggers = timelineSearch.querySelectorAll('[data-search-close]');
+    if (empty) {
+      empty.hidden = true;
+    }
+  };
 
-    const escapeHTML = function(value) {
-      return value.replace(/[&<>"']/g, function(char) {
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[char];
-      });
-    };
+  const updateResults = function(query) {
+    const normalizedQuery = query.trim().toLowerCase();
+    let visibleCount = 0;
 
-    const escapeRegExp = function(value) {
-      return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    };
+    results.forEach(item => {
+      const matched = Boolean(normalizedQuery) && item.dataset.searchText.includes(normalizedQuery);
+      const title = item.querySelector('.search-result-title');
+      const excerpt = item.querySelector('.search-result-excerpt');
 
-    const highlightText = function(value, query) {
-      const safeValue = escapeHTML(value);
-      if (!query) return safeValue;
-      const pattern = new RegExp(escapeRegExp(query), 'gi');
-      return safeValue.replace(pattern, '<mark>$&</mark>');
-    };
-
-    const getMatchedSnippet = function(item, query) {
-      const fallback = item.dataset.searchExcerpt || '';
-      const body = item.dataset.searchBody || fallback;
-      const normalizedBody = body.toLowerCase();
-      const index = normalizedBody.indexOf(query);
-
-      if (index === -1) return fallback;
-
-      const radius = 58;
-      const start = Math.max(0, index - radius);
-      const end = Math.min(body.length, index + query.length + radius);
-      const prefix = start > 0 ? '...' : '';
-      const suffix = end < body.length ? '...' : '';
-
-      return prefix + body.slice(start, end) + suffix;
-    };
-
-    const resetResults = function() {
-      results.forEach(item => {
-        const title = item.querySelector('.search-result-title');
-        const excerpt = item.querySelector('.search-result-excerpt');
-
-        item.hidden = true;
+      item.hidden = !matched;
+      if (matched) {
+        if (title) title.innerHTML = highlightText(item.dataset.searchTitle || '', normalizedQuery);
+        if (excerpt) excerpt.innerHTML = highlightText(getMatchedSnippet(item, normalizedQuery), normalizedQuery);
+        visibleCount += 1;
+      } else {
         if (title) title.textContent = item.dataset.searchTitle || '';
         if (excerpt) excerpt.textContent = item.dataset.searchExcerpt || '';
-      });
-
-      if (empty) {
-        empty.hidden = true;
       }
-    };
+    });
 
-    const updateResults = function(query) {
-      const normalizedQuery = query.trim().toLowerCase();
-      let visibleCount = 0;
-
-      results.forEach(item => {
-        const matched = Boolean(normalizedQuery) && item.dataset.searchText.includes(normalizedQuery);
-        const title = item.querySelector('.search-result-title');
-        const excerpt = item.querySelector('.search-result-excerpt');
-
-        item.hidden = !matched;
-        if (matched) {
-          if (title) title.innerHTML = highlightText(item.dataset.searchTitle || '', normalizedQuery);
-          if (excerpt) excerpt.innerHTML = highlightText(getMatchedSnippet(item, normalizedQuery), normalizedQuery);
-          visibleCount += 1;
-        } else {
-          if (title) title.textContent = item.dataset.searchTitle || '';
-          if (excerpt) excerpt.textContent = item.dataset.searchExcerpt || '';
-        }
-      });
-
-      if (empty) {
-        empty.hidden = !normalizedQuery || visibleCount > 0;
-      }
-    };
-
-    const openSearch = function() {
-      overlay.hidden = false;
-      document.body.classList.add('is-search-open');
-      toggle.setAttribute('aria-expanded', 'true');
-      input.value = '';
-      resetResults();
-      window.requestAnimationFrame(() => input.focus());
-    };
-
-    const closeSearch = function() {
-      overlay.hidden = true;
-      document.body.classList.remove('is-search-open');
-      toggle.setAttribute('aria-expanded', 'false');
-      input.value = '';
-      resetResults();
-    };
-
-    if (toggle && overlay && input) {
-      toggle.addEventListener('click', openSearch);
-      input.addEventListener('input', resetResults);
-      input.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          updateResults(input.value);
-        }
-      });
-      closeTriggers.forEach(trigger => {
-        trigger.addEventListener('click', closeSearch);
-      });
-
-      document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && !overlay.hidden) {
-          closeSearch();
-        }
-      });
+    if (empty) {
+      empty.hidden = !normalizedQuery || visibleCount > 0;
     }
+  };
+
+  if (toggle && overlay) {
+    toggle.addEventListener('click', function() {
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', !isExpanded);
+      overlay.hidden = isExpanded;
+      if (!isExpanded) {
+        input.focus();
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && !overlay.hidden) {
+        toggle.setAttribute('aria-expanded', 'false');
+        overlay.hidden = true;
+      }
+    });
+
+    overlay.addEventListener('click', function(event) {
+      if (event.target === overlay) {
+        toggle.setAttribute('aria-expanded', 'false');
+        overlay.hidden = true;
+      }
+    });
+  }
+
+  if (input) {
+    input.addEventListener('input', resetResults);
+
+    input.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        updateResults(input.value);
+      }
+    });
   }
 
   const siteLayout = document.querySelector('.site-layout');
@@ -203,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
           button.classList.add('is-copied');
         } catch (error) {
           button.textContent = '失败';
-          button.classList.remove('is-copied');
+          button.classList.remove('is-copied', 'is-error');
           button.classList.add('is-error');
         }
 
@@ -232,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     if (headings.length > 0) {
-      const tocLinks = headings.map(function(heading) {
+      const tocItems = headings.map(function(heading) {
         const id = ensureId(heading);
         const item = document.createElement('li');
         item.className = 'post-toc-item post-toc-item-depth-' + heading.tagName.slice(1);
@@ -243,35 +195,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         item.appendChild(link);
         tocList.appendChild(item);
-        return { heading, link };
+        return { heading, item };
       });
 
       tocSection.hidden = false;
 
-      const setActiveLink = function(id) {
-        tocLinks.forEach(function(entry) {
-          entry.link.classList.toggle('is-active', entry.heading.id === id);
+      const handleScroll = function() {
+        const scrollPos = window.scrollY + 100;
+        let activeIndex = -1;
+
+        headings.forEach((heading, index) => {
+          if (scrollPos >= heading.offsetTop) {
+            activeIndex = index;
+          }
+        });
+
+        tocItems.forEach((toc, index) => {
+          toc.item.classList.toggle('active', index === activeIndex);
         });
       };
 
-      const observer = new IntersectionObserver(function(entries) {
-        const visibleEntry = entries
-          .filter(function(entry) { return entry.isIntersecting; })
-          .sort(function(a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
-
-        if (visibleEntry) {
-          setActiveLink(visibleEntry.target.id);
-        }
-      }, {
-        rootMargin: '0px 0px -70% 0px',
-        threshold: [0.1, 0.4, 0.7]
-      });
-
-      tocLinks.forEach(function(entry) {
-        observer.observe(entry.heading);
-      });
-
-      setActiveLink(tocLinks[0].heading.id);
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
     }
   }
 });
