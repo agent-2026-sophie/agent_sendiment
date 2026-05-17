@@ -832,11 +832,10 @@ body.is-search-open {
 }
 
 .post-content table {
-  display: block;
   width: 100%;
-  overflow-x: auto;
   border-collapse: collapse;
   border-spacing: 0;
+  table-layout: auto;
 }
 
 .post-content th,
@@ -851,6 +850,92 @@ body.is-search-open {
   background: #f8fafc;
   color: var(--primary-color);
   font-weight: 600;
+}
+
+.post-content .highlighter-rouge,
+.post-content .highlighter-rouge .highlight {
+  background: transparent;
+}
+
+.post-content .highlight {
+  margin: 0;
+}
+
+.post-content .highlight .c,
+.post-content .highlight .cm,
+.post-content .highlight .c1,
+.post-content .highlight .cs {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.post-content .highlight .err,
+.post-content .highlight .gr,
+.post-content .highlight .gt {
+  color: #dc2626;
+}
+
+.post-content .highlight .k,
+.post-content .highlight .kc,
+.post-content .highlight .kd,
+.post-content .highlight .kp,
+.post-content .highlight .kr,
+.post-content .highlight .ow {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.post-content .highlight .kt,
+.post-content .highlight .nb,
+.post-content .highlight .bp {
+  color: #2563eb;
+}
+
+.post-content .highlight .na,
+.post-content .highlight .nc,
+.post-content .highlight .nf,
+.post-content .highlight .ne,
+.post-content .highlight .nn,
+.post-content .highlight .nt {
+  color: #0f766e;
+}
+
+.post-content .highlight .no,
+.post-content .highlight .nv,
+.post-content .highlight .vc,
+.post-content .highlight .vg,
+.post-content .highlight .vi {
+  color: #0f766e;
+}
+
+.post-content .highlight .m,
+.post-content .highlight .mf,
+.post-content .highlight .mh,
+.post-content .highlight .mi,
+.post-content .highlight .mo,
+.post-content .highlight .il {
+  color: #b45309;
+}
+
+.post-content .highlight .s,
+.post-content .highlight .sb,
+.post-content .highlight .sc,
+.post-content .highlight .sd,
+.post-content .highlight .s1,
+.post-content .highlight .s2,
+.post-content .highlight .se,
+.post-content .highlight .sh,
+.post-content .highlight .si,
+.post-content .highlight .sx,
+.post-content .highlight .sr,
+.post-content .highlight .ss {
+  color: #be123c;
+}
+
+.post-content .highlight .o,
+.post-content .highlight .gp,
+.post-content .highlight .w {
+  color: #64748b;
 }
 
 .post-content img {
