@@ -832,6 +832,15 @@ body.is-search-open {
   color: #5f6672;
 }
 
+.post-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
 .post-content .table-wrapper {
   margin: 1.5rem 0;
   overflow: auto;
