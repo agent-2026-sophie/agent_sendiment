@@ -229,11 +229,11 @@ document.addEventListener('DOMContentLoaded', function() {
               const toggleBtn = document.createElement('span');
               toggleBtn.className = 'post-toc-toggle';
               toggleBtn.innerHTML = '▶';
-              toggleBtn.onclick = (e) => {
+              toggleBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 parentLi.classList.toggle('expanded');
-              };
+              });
               parentLi.insertBefore(toggleBtn, parentLi.firstChild);
             }
           }
