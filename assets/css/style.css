@@ -856,7 +856,11 @@ body.is-search-open {
 }
 
 .post-layout-wrapper {
-  display: grid; grid-template-columns: minmax(0, 800px) 240px; gap: 3.5rem; align-items: start; justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 800px) 260px;
+  gap: 3.5rem;
+  align-items: start;
+  justify-content: center;
 }
 
 .post-main-content {
@@ -864,50 +868,133 @@ body.is-search-open {
 }
 
 .post-sidebar {
-  position: sticky; top: 2rem;
+  position: sticky;
+  top: 2rem;
 }
 
 .post-sidebar-sticky {
-  padding-left: 1.5rem; border-left: 1px solid var(--border-color);
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--border-color);
 }
 
 .post-outline-title {
-  margin-bottom: 1.2rem; color: var(--primary-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .post-toc-list {
-  list-style: none; padding: 0; margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .post-toc-item {
-  margin-bottom: 0.7rem; font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  position: relative;
 }
 
-.post-toc-item-depth-3 {
-  padding-left: 1rem; font-size: 0.85rem;
+.post-toc-item-depth-1 {
+  font-weight: 600;
+  margin-top: 0.8rem;
+}
+
+.post-toc-item-depth-1 > a {
+  color: var(--primary-color);
+}
+
+.post-toc-item-depth-4 {
+  font-size: 0.8rem;
+  color: #94a3b8;
 }
 
 .post-toc-item a {
-  color: #64748b; text-decoration: none; transition: color 0.2s;
+  display: block;
+  padding: 0.35rem 0;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .post-toc-item a:hover {
   color: var(--accent-color);
+  padding-left: 4px;
 }
 
-/* Code Blocks - Dark Mode */
+.post-toc-item.active > a {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* Nesting & Folding */
+.post-toc-list .post-toc-list {
+  padding-left: 1.2rem;
+  margin-top: 0.2rem;
+  border-left: 1px solid #e2e8f0;
+  display: none; /* Folded by default */
+}
+
+.post-toc-item.has-children.active > .post-toc-list,
+.post-toc-item.has-children.expanded > .post-toc-list {
+  display: block;
+}
+
+.post-toc-toggle {
+  position: absolute;
+  left: -1.2rem;
+  top: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: transform 0.2s;
+}
+
+.post-toc-item.expanded > .post-toc-toggle {
+  transform: rotate(90deg);
+}
+
+/* Code Blocks - Dark Mode & Scrolling */
 .post-content .highlighter-rouge,
 .post-content .code-block,
 .post-content pre.highlight {
-  margin: 1.5rem 0; background: #0f172a !important; border: 1px solid #1e293b; border-radius: 8px; position: relative; overflow: hidden;
+  margin: 1.5rem 0;
+  background: #0f172a !important;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
 .post-content pre {
-  margin: 0; padding: 2.8rem 1.2rem 1.2rem; background: transparent !important; color: #e2e8f0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; overflow-x: auto;
+  margin: 0;
+  padding: 2.8rem 1.2rem 1.2rem;
+  background: transparent !important;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  overflow: auto; /* Enable both horizontal and vertical scrolling */
+  max-height: 60vh; /* Limit height to 60% of viewport */
 }
 
 .post-content :not(pre) > code {
-  padding: 0.2rem 0.4rem; background: #f1f5f9; color: #e11d48; border-radius: 4px; font-size: 0.9em;
+  padding: 0.2rem 0.4rem;
+  background: #f1f5f9; /* Light grey for inline code */
+  color: #475569; /* Dark grey text for readability */
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid #e2e8f0;
 }
 
 /* Syntax Highlighting (Rouge) for Dark Mode */
@@ -945,11 +1032,6 @@ body.is-search-open {
 .post-toc-list a:hover,
 .post-toc-list a.is-active {
   color: var(--primary-color);
-}
-
-.post-toc-item-depth-3 a {
-  padding-left: 0.9rem;
-  font-size: 0.86rem;
 }
 
 /* Pagination */

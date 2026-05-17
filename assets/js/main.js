@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   if (tocSection && tocList && postContent) {
-    const headings = Array.from(postContent.querySelectorAll('h2, h3'));
+    const headings = Array.from(postContent.querySelectorAll('h1, h2, h3, h4'));
 
     const ensureId = function(heading) {
       if (heading.id) return heading.id;
@@ -184,20 +184,64 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     if (headings.length > 0) {
-      const tocItems = headings.map(function(heading) {
-        const id = ensureId(heading);
-        const item = document.createElement('li');
-        item.className = 'post-toc-item post-toc-item-depth-' + heading.tagName.slice(1);
+      const buildToc = function() {
+        tocList.innerHTML = '';
+        // Start with level 0 as root to accommodate H1 (level 1)
+        const stack = [{ level: 0, container: tocList }];
+        const tocItems = [];
 
-        const link = document.createElement('a');
-        link.href = '#' + id;
-        link.textContent = heading.textContent.trim();
+        headings.forEach(heading => {
+          const level = parseInt(heading.tagName.substring(1));
+          const id = ensureId(heading);
 
-        item.appendChild(link);
-        tocList.appendChild(item);
-        return { heading, item };
-      });
+          // Pop from stack until we find the parent level
+          while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+            stack.pop();
+          }
 
+          const item = document.createElement('li');
+          item.className = 'post-toc-item post-toc-item-depth-' + level;
+
+          const link = document.createElement('a');
+          link.href = '#' + id;
+          link.textContent = heading.textContent.trim();
+          item.appendChild(link);
+
+          const parent = stack[stack.length - 1];
+          let container = parent.container;
+          
+          if (level > parent.level) {
+            const lastItem = container.lastElementChild;
+            if (lastItem) {
+              lastItem.classList.add('has-children');
+              let subList = lastItem.querySelector('ul');
+              if (!subList) {
+                subList = document.createElement('ul');
+                subList.className = 'post-toc-list';
+                lastItem.appendChild(subList);
+                
+                const toggleBtn = document.createElement('span');
+                toggleBtn.className = 'post-toc-toggle';
+                toggleBtn.innerHTML = '▶';
+                toggleBtn.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  lastItem.classList.toggle('expanded');
+                });
+                lastItem.insertBefore(toggleBtn, lastItem.firstChild);
+              }
+              container = subList;
+            }
+          }
+
+          container.appendChild(item);
+          stack.push({ level: level, container: container });
+          tocItems.push({ heading, item });
+        });
+        return tocItems;
+      };
+
+      const tocItems = buildToc();
       tocSection.hidden = false;
 
       const handleScroll = function() {
@@ -211,7 +255,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         tocItems.forEach((toc, index) => {
-          toc.item.classList.toggle('active', index === activeIndex);
+          const isActive = index === activeIndex;
+          toc.item.classList.toggle('active', isActive);
+          
+          // Auto expand active parents
+          if (isActive) {
+            let parent = toc.item.parentElement;
+            while (parent && parent !== tocList) {
+              if (parent.tagName === 'LI') parent.classList.add('expanded');
+              parent = parent.parentElement;
+            }
+          }
         });
       };
 
