@@ -886,15 +886,73 @@ body.is-search-open {
   gap: 3.5rem;
   align-items: start;
   justify-content: center;
+  position: relative;
+  transition: grid-template-columns 0.3s ease, gap 0.3s ease;
+}
+
+.post-layout-wrapper.is-post-sidebar-collapsed {
+  grid-template-columns: minmax(0, 1000px);
+  gap: 0;
+}
+
+.post-layout-wrapper.is-post-sidebar-collapsed .post-sidebar {
+  display: none;
+}
+
+.post-sidebar-toggle {
+  position: absolute;
+  right: -2rem;
+  top: 2rem;
+  width: 1.6rem;
+  height: 3rem;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  color: var(--text-muted);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.post-layout-wrapper.is-post-sidebar-collapsed .post-sidebar-toggle {
+  right: 0;
+  border-left: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.post-sidebar-toggle:hover {
+  color: var(--primary-color);
+  background: #f8fafc;
+}
+
+.post-sidebar-toggle .toggle-arrow {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.3s ease;
+}
+
+.post-layout-wrapper.is-post-sidebar-collapsed .post-sidebar-toggle .toggle-arrow {
+  transform: rotate(135deg);
 }
 
 .post-main-content {
   min-width: 0;
+  width: 100%;
 }
 
 .post-sidebar {
   position: sticky;
   top: 2rem;
+  width: 260px;
 }
 
 .post-sidebar-sticky {
@@ -918,54 +976,8 @@ body.is-search-open {
   font-weight: 700;
 }
 
-.post-toc-global-toggle {
-  display: flex; /* Always show toggle */
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all 0.2s ease;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.post-toc-global-toggle::before {
-  content: "折叠";
-  font-size: 0.7rem;
-  font-weight: 500;
-}
-
-.post-outline.is-collapsed .post-toc-global-toggle::before {
-  content: "展开";
-}
-
-.post-toc-global-toggle:hover {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-  background: #f1f5f9;
-}
-
-.post-toc-global-toggle .toggle-icon {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
-  margin-top: -4px;
-}
-
-.post-outline.is-collapsed .post-toc-global-toggle .toggle-icon {
-  transform: rotate(-135deg);
-  margin-top: 2px;
-}
-
-.post-outline.is-collapsed .post-toc-nav {
-  display: none;
+.post-outline {
+  margin-bottom: 2rem;
 }
 
 @media (max-width: 900px) {
@@ -974,7 +986,6 @@ body.is-search-open {
     border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 8px;
-    margin-bottom: 2rem;
   }
 }
 

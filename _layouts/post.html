@@ -13,7 +13,10 @@ layout: default
 {% endif %}
 
 <div class="container post-container">
-  <div class="post-layout-wrapper">
+  <div class="post-layout-wrapper" id="postLayoutWrapper">
+    <button type="button" class="post-sidebar-toggle" id="postSidebarToggle" aria-label="收起侧边栏">
+      <span class="toggle-arrow"></span>
+    </button>
     <article class="post-main-content">
       <header class="post-header">
         <div class="post-header-tag">
@@ -55,9 +58,6 @@ layout: default
         <div class="post-outline" data-post-toc hidden>
           <div class="post-outline-header">
             <h3 class="post-outline-title">本文目录</h3>
-            <button type="button" class="post-toc-global-toggle" id="postTocGlobalToggle" aria-label="折叠目录">
-              <span class="toggle-icon"></span>
-            </button>
           </div>
           <nav class="post-toc-nav" id="postTocNav">
             <ul class="post-toc-list" data-post-toc-list></ul>

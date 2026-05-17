@@ -259,18 +259,30 @@ document.addEventListener('DOMContentLoaded', function() {
       const tocItems = buildToc();
       tocSection.hidden = false;
 
-      // Global TOC Toggle (Collapse/Expand)
-      const globalToggle = document.getElementById('postTocGlobalToggle');
-      if (globalToggle && tocSection) {
-        globalToggle.addEventListener('click', function() {
-          const isCollapsed = tocSection.classList.toggle('is-collapsed');
-          globalToggle.setAttribute('aria-expanded', !isCollapsed);
+      // Post Sidebar Horizontal Toggle
+      const sidebarToggle = document.getElementById('postSidebarToggle');
+      const layoutWrapper = document.getElementById('postLayoutWrapper');
+      const postStorageKey = 'post-sidebar-collapsed';
+
+      if (sidebarToggle && layoutWrapper) {
+        const setPostSidebarState = function(collapsed) {
+          layoutWrapper.classList.toggle('is-post-sidebar-collapsed', collapsed);
+          sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+          localStorage.setItem(postStorageKey, String(collapsed));
+        };
+
+        // Initialize state
+        const isCollapsed = localStorage.getItem(postStorageKey) === 'true';
+        setPostSidebarState(isCollapsed);
+
+        sidebarToggle.addEventListener('click', function() {
+          const currentState = layoutWrapper.classList.contains('is-post-sidebar-collapsed');
+          setPostSidebarState(!currentState);
         });
 
         // Auto-collapse on small screens
         if (window.innerWidth <= 900) {
-          tocSection.classList.add('is-collapsed');
-          globalToggle.setAttribute('aria-expanded', 'false');
+          setPostSidebarState(true);
         }
       }
 
