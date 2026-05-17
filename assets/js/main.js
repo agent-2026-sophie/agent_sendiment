@@ -174,6 +174,49 @@ document.addEventListener('DOMContentLoaded', function() {
   const tocSection = document.querySelector('[data-post-toc]');
   const tocList = document.querySelector('[data-post-toc-list]');
   const postContent = document.querySelector('.post-content');
+  const writeClipboard = async function(value) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      throw new Error('Clipboard API unavailable');
+    }
+    await navigator.clipboard.writeText(value);
+  };
+
+  if (postContent) {
+    const codeBlocks = Array.from(postContent.querySelectorAll('pre'));
+    codeBlocks.forEach(function(pre) {
+      const block = pre.closest('.highlighter-rouge') || pre;
+      if (block.querySelector('.code-copy-button')) return;
+
+      block.classList.add('code-block');
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-copy-button';
+      button.textContent = '复制';
+
+      button.addEventListener('click', async function() {
+        const code = pre.innerText.replace(/\n$/, '');
+        try {
+          await writeClipboard(code);
+          button.textContent = '已复制';
+          button.classList.remove('is-error');
+          button.classList.add('is-copied');
+        } catch (error) {
+          button.textContent = '失败';
+          button.classList.remove('is-copied');
+          button.classList.add('is-error');
+        }
+
+        window.setTimeout(function() {
+          button.textContent = '复制';
+          button.classList.remove('is-copied', 'is-error');
+        }, 1800);
+      });
+
+      block.insertBefore(button, block.firstChild);
+    });
+  }
+
   if (tocSection && tocList && postContent) {
     const headings = Array.from(postContent.querySelectorAll('h2, h3'));
 
@@ -192,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const tocLinks = headings.map(function(heading) {
         const id = ensureId(heading);
         const item = document.createElement('li');
-        item.className = 'sidebar-toc-item sidebar-toc-item-depth-' + heading.tagName.slice(1);
+        item.className = 'post-toc-item post-toc-item-depth-' + heading.tagName.slice(1);
 
         const link = document.createElement('a');
         link.href = '#' + id;
