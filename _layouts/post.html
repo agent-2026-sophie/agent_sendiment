@@ -53,8 +53,13 @@ layout: default
     <aside class="post-sidebar">
       <div class="post-sidebar-sticky">
         <div class="post-outline" data-post-toc hidden>
-          <h3 class="post-outline-title">本文目录</h3>
-          <nav class="post-toc-nav">
+          <div class="post-outline-header">
+            <h3 class="post-outline-title">本文目录</h3>
+            <button type="button" class="post-toc-global-toggle" id="postTocGlobalToggle" aria-label="折叠目录">
+              <span class="toggle-icon"></span>
+            </button>
+          </div>
+          <nav class="post-toc-nav" id="postTocNav">
             <ul class="post-toc-list" data-post-toc-list></ul>
           </nav>
         </div>

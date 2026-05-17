@@ -134,6 +134,16 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   if (postContent) {
+    // Wrap tables for scrolling
+    const tables = postContent.querySelectorAll('table');
+    tables.forEach(table => {
+      if (table.parentElement.classList.contains('table-wrapper')) return;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+
     const codeBlocks = Array.from(postContent.querySelectorAll('pre'));
     codeBlocks.forEach(function(pre) {
       const block = pre.closest('.highlighter-rouge') || pre;
@@ -248,6 +258,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const tocItems = buildToc();
       tocSection.hidden = false;
+
+      // Global TOC Toggle (Collapse/Expand)
+      const globalToggle = document.getElementById('postTocGlobalToggle');
+      if (globalToggle && tocSection) {
+        globalToggle.addEventListener('click', function() {
+          const isCollapsed = tocSection.classList.toggle('is-collapsed');
+          globalToggle.setAttribute('aria-expanded', !isCollapsed);
+        });
+
+        // Auto-collapse on small screens
+        if (window.innerWidth <= 900) {
+          tocSection.classList.add('is-collapsed');
+          globalToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
 
       const handleScroll = function() {
         const scrollPos = window.scrollY + 100;

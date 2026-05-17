@@ -832,10 +832,31 @@ body.is-search-open {
   color: #5f6672;
 }
 
+.post-content .table-wrapper {
+  margin: 1.5rem 0;
+  overflow: auto;
+  max-height: 500px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.post-content .table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.post-content .table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
 .post-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
+  margin: 0; /* Margin moved to wrapper */
+  min-width: 600px; /* Ensure horizontal scroll on small containers */
 }
 
 .post-content th,
@@ -848,6 +869,10 @@ body.is-search-open {
 .post-content th {
   background: #f8fafc;
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: inset 0 -1px 0 var(--border-color);
 }
 
 /* Post Sidebar & TOC */
@@ -877,13 +902,62 @@ body.is-search-open {
   border-left: 1px solid var(--border-color);
 }
 
-.post-outline-title {
+.post-outline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.2rem;
+}
+
+.post-outline-title {
+  margin-bottom: 0;
   color: var(--primary-color);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 700;
+}
+
+.post-toc-global-toggle {
+  display: none; /* Only show on small screens or by default if preferred */
+  background: transparent;
+  border: 0;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.post-toc-global-toggle .toggle-icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+}
+
+.post-outline.is-collapsed .post-toc-global-toggle .toggle-icon {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.post-outline.is-collapsed .post-toc-nav {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .post-toc-global-toggle {
+    display: block;
+  }
+  
+  .post-outline {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
 }
 
 .post-toc-list {
