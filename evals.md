@@ -5,4 +5,4 @@ heading: Evaluations
 collection: evals_posts
 ---
 
-Notes on model evaluation, benchmarks, metrics and experiment analysis.
+[The second half](https://ysymyth.github.io/The-Second-Half/).
