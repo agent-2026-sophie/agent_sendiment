@@ -62,6 +62,7 @@ layout: default
               id="timelineSearchInput"
               class="timeline-search-input"
               type="search"
+              data-search-input
               placeholder="输入关键词后按 Enter 搜索..."
               autocomplete="off"
             >
@@ -69,6 +70,7 @@ layout: default
           </div>
 
           <div class="search-results" aria-live="polite">
+            <div class="search-empty" data-search-empty hidden>未找到相关文章</div>
             {% for post in all_posts %}
               {% assign post_words = post.content | strip_html | strip_newlines | remove: " " | remove: "　" | size %}
               {% if post_words >= 1000 %}

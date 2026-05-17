@@ -1,9 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
+  // --- Cross-tab Sync Refresh ---
+  const currentVersion = document.querySelector('meta[name="site-version"]')?.getAttribute('content');
+  const storageKey = 'site-version-sync';
+
+  if (currentVersion) {
+    const lastVersion = localStorage.getItem(storageKey);
+    
+    // If this tab has a newer version than what's in storage, update storage
+    // This happens when the user manually refreshes ONE tab after a push
+    if (!lastVersion || parseInt(currentVersion) > parseInt(lastVersion)) {
+      localStorage.setItem(storageKey, currentVersion);
+    }
+
+    // Listen for storage changes from other tabs
+    window.addEventListener('storage', function(event) {
+      if (event.key === storageKey && event.newValue) {
+        if (parseInt(event.newValue) > parseInt(currentVersion)) {
+          // If another tab updated the version to something newer, reload this tab
+          window.location.reload();
+        }
+      }
+    });
+  }
+  // ------------------------------
+
   const input = document.querySelector('[data-search-input]');
   const results = document.querySelectorAll('.search-result');
-  const empty = document.querySelector('.search-empty');
+  const empty = document.querySelector('[data-search-empty]');
   const overlay = document.getElementById('searchOverlay');
   const toggle = document.querySelector('.search-toggle');
+  const closeButtons = document.querySelectorAll('[data-search-close]');
 
   const highlightText = function(text, query) {
     if (!query) return text;
@@ -68,27 +94,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
 
+  const closeSearch = function() {
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    if (overlay) overlay.hidden = true;
+    document.body.classList.remove('is-search-open');
+  };
+
   if (toggle && overlay) {
     toggle.addEventListener('click', function() {
       const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', !isExpanded);
       overlay.hidden = isExpanded;
       if (!isExpanded) {
-        input.focus();
+        document.body.classList.add('is-search-open');
+        if (input) input.focus();
+      } else {
+        document.body.classList.remove('is-search-open');
       }
+    });
+
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', closeSearch);
     });
 
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape' && !overlay.hidden) {
-        toggle.setAttribute('aria-expanded', 'false');
-        overlay.hidden = true;
+        closeSearch();
       }
     });
 
     overlay.addEventListener('click', function(event) {
-      if (event.target === overlay) {
-        toggle.setAttribute('aria-expanded', 'false');
-        overlay.hidden = true;
+      if (event.target === overlay || event.target.classList.contains('search-backdrop')) {
+        closeSearch();
       }
     });
   }
