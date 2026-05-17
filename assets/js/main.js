@@ -186,17 +186,46 @@ document.addEventListener('DOMContentLoaded', function() {
     if (headings.length > 0) {
       const buildToc = function() {
         tocList.innerHTML = '';
-        // Start with level 0 as root to accommodate H1 (level 1)
-        const stack = [{ level: 0, container: tocList }];
         const tocItems = [];
+        
+        // Use a stack to track the current nesting level
+        // levelStack[0] is the root container (tocList)
+        const levelStack = [{ level: 0, container: tocList }];
 
         headings.forEach(heading => {
           const level = parseInt(heading.tagName.substring(1));
           const id = ensureId(heading);
 
-          // Pop from stack until we find the parent level
-          while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-            stack.pop();
+          // Find the appropriate parent in the stack
+          // We need to pop levels that are >= current level
+          while (levelStack.length > 1 && levelStack[levelStack.length - 1].level >= level) {
+            levelStack.pop();
+          }
+
+          const parent = levelStack[levelStack.length - 1];
+          let currentContainer = parent.container;
+
+          // If the parent is an LI (not the root), we might need to create a UL inside it
+          if (parent.level > 0) {
+            const parentLi = parent.item;
+            currentContainer = parentLi.querySelector('ul');
+            
+            if (!currentContainer) {
+              parentLi.classList.add('has-children');
+              currentContainer = document.createElement('ul');
+              currentContainer.className = 'post-toc-list';
+              parentLi.appendChild(currentContainer);
+              
+              const toggleBtn = document.createElement('span');
+              toggleBtn.className = 'post-toc-toggle';
+              toggleBtn.innerHTML = '▶';
+              toggleBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                parentLi.classList.toggle('expanded');
+              };
+              parentLi.insertBefore(toggleBtn, parentLi.firstChild);
+            }
           }
 
           const item = document.createElement('li');
@@ -206,36 +235,12 @@ document.addEventListener('DOMContentLoaded', function() {
           link.href = '#' + id;
           link.textContent = heading.textContent.trim();
           item.appendChild(link);
-
-          const parent = stack[stack.length - 1];
-          let container = parent.container;
           
-          if (level > parent.level) {
-            const lastItem = container.lastElementChild;
-            if (lastItem) {
-              lastItem.classList.add('has-children');
-              let subList = lastItem.querySelector('ul');
-              if (!subList) {
-                subList = document.createElement('ul');
-                subList.className = 'post-toc-list';
-                lastItem.appendChild(subList);
-                
-                const toggleBtn = document.createElement('span');
-                toggleBtn.className = 'post-toc-toggle';
-                toggleBtn.innerHTML = '▶';
-                toggleBtn.addEventListener('click', (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  lastItem.classList.toggle('expanded');
-                });
-                lastItem.insertBefore(toggleBtn, lastItem.firstChild);
-              }
-              container = subList;
-            }
-          }
-
-          container.appendChild(item);
-          stack.push({ level: level, container: container });
+          currentContainer.appendChild(item);
+          
+          // Add this new item to the stack
+          levelStack.push({ level, container: currentContainer, item });
+          
           tocItems.push({ heading, item });
         });
         return tocItems;
@@ -258,11 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
           const isActive = index === activeIndex;
           toc.item.classList.toggle('active', isActive);
           
-          // Auto expand active parents
           if (isActive) {
             let parent = toc.item.parentElement;
             while (parent && parent !== tocList) {
-              if (parent.tagName === 'LI') parent.classList.add('expanded');
+              if (parent.tagName === 'LI') {
+                parent.classList.add('expanded');
+              }
               parent = parent.parentElement;
             }
           }

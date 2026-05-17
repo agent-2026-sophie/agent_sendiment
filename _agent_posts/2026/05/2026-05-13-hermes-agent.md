@@ -4,7 +4,7 @@ title: Hermes Agent
 date: 2026-05-13
 author: Sophie
 category: Agent
-tags: [Agent]
+tags: [general agent, harness, hermes agent]
 excerpt: 本文讨论了对 Hermes Agent 这一通用 agent 平台的调研分析，涉及定位、系统提示、工具系统、目录发现机制、上下文压缩、规划模式、子代理机制、自我进化机制以及网关架构等方面。
 ---
 
