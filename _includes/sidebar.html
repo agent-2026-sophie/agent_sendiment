@@ -23,6 +23,13 @@
     </div>
   </section>
 
+  {% if page.layout == "post" %}
+    <section class="sidebar-section sidebar-toc" data-post-toc hidden>
+      <h2 class="sidebar-title">本文目录</h2>
+      <ul class="sidebar-toc-list" data-post-toc-list></ul>
+    </section>
+  {% endif %}
+
   <section class="sidebar-section sidebar-social">
     <a href="https://github.com/{{ site.author.github }}" target="_blank" rel="noopener">GitHub</a>
     <a href="mailto:{{ site.author.email }}">Gmail</a>

@@ -170,4 +170,65 @@ document.addEventListener('DOMContentLoaded', function() {
       setSidebarState(!siteLayout.classList.contains('is-sidebar-collapsed'));
     });
   }
+
+  const tocSection = document.querySelector('[data-post-toc]');
+  const tocList = document.querySelector('[data-post-toc-list]');
+  const postContent = document.querySelector('.post-content');
+  if (tocSection && tocList && postContent) {
+    const headings = Array.from(postContent.querySelectorAll('h2, h3'));
+
+    const ensureId = function(heading) {
+      if (heading.id) return heading.id;
+      const generatedId = heading.textContent
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
+        .replace(/\s+/g, '-');
+      heading.id = generatedId || ('section-' + Math.random().toString(36).slice(2, 8));
+      return heading.id;
+    };
+
+    if (headings.length > 0) {
+      const tocLinks = headings.map(function(heading) {
+        const id = ensureId(heading);
+        const item = document.createElement('li');
+        item.className = 'sidebar-toc-item sidebar-toc-item-depth-' + heading.tagName.slice(1);
+
+        const link = document.createElement('a');
+        link.href = '#' + id;
+        link.textContent = heading.textContent.trim();
+
+        item.appendChild(link);
+        tocList.appendChild(item);
+        return { heading, link };
+      });
+
+      tocSection.hidden = false;
+
+      const setActiveLink = function(id) {
+        tocLinks.forEach(function(entry) {
+          entry.link.classList.toggle('is-active', entry.heading.id === id);
+        });
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        const visibleEntry = entries
+          .filter(function(entry) { return entry.isIntersecting; })
+          .sort(function(a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+
+        if (visibleEntry) {
+          setActiveLink(visibleEntry.target.id);
+        }
+      }, {
+        rootMargin: '0px 0px -70% 0px',
+        threshold: [0.1, 0.4, 0.7]
+      });
+
+      tocLinks.forEach(function(entry) {
+        observer.observe(entry.heading);
+      });
+
+      setActiveLink(tocLinks[0].heading.id);
+    }
+  }
 });
