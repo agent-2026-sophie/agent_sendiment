@@ -14,7 +14,8 @@ sitemap: false
 
 <div class="container writer-page"
      data-repo-owner="{{ site.author.github }}"
-     data-repo-name="{{ repo_name }}">
+     data-repo-name="{{ repo_name }}"
+     data-baseurl="{{ site.baseurl }}">
 
   <!-- 鉴权区域 -->
   <section class="writer-auth" data-writer-auth>
@@ -112,7 +113,16 @@ sitemap: false
 
       <label class="writer-field">
         <span>正文（Markdown）</span>
-        <textarea data-field-content rows="18" placeholder="## 背景&#10;&#10;..."></textarea>
+        <div class="writer-content-toolbar">
+          <button type="button" class="writer-tool-btn" data-insert-image>插入图片</button>
+          <button type="button" class="writer-tool-btn" data-toggle-preview aria-pressed="false">预览</button>
+          <input type="file" accept="image/*" data-image-file hidden>
+          <span class="writer-tool-status" data-image-status hidden></span>
+        </div>
+        <div class="writer-content-area">
+          <textarea data-field-content rows="18" placeholder="## 背景&#10;&#10;..."></textarea>
+          <div class="writer-preview post-content" data-preview hidden></div>
+        </div>
       </label>
 
       <div class="writer-publish-bar">
@@ -147,6 +157,7 @@ sitemap: false
   </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script>
 (function () {
   const page = document.querySelector('.writer-page');
@@ -673,6 +684,128 @@ sitemap: false
     } finally {
       btn.disabled = false;
       btn.textContent = originalLabel;
+    }
+  });
+
+  // ---------- Markdown preview ----------
+  const previewEl = $('[data-preview]');
+  const previewBtn = $('[data-toggle-preview]');
+  const contentArea = page.querySelector('.writer-content-area');
+
+  function renderPreview() {
+    if (!previewEl || typeof marked === 'undefined') return;
+    const baseurl = page.dataset.baseurl || '';
+    // 把 Liquid 的 relative_url 引用解析为可预览的真实路径
+    const md = (fieldContent.value || '').replace(
+      /\{\{\s*["']([^"']+)["']\s*\|\s*relative_url\s*\}\}/g,
+      function (_, p) { return baseurl + p; }
+    );
+    previewEl.innerHTML = marked.parse(md);
+  }
+
+  previewBtn.addEventListener('click', function () {
+    const showing = contentArea.classList.toggle('is-preview');
+    previewBtn.setAttribute('aria-pressed', showing ? 'true' : 'false');
+    previewBtn.textContent = showing ? '编辑' : '预览';
+    previewEl.hidden = !showing;
+    fieldContent.hidden = showing;
+    if (showing) renderPreview();
+  });
+
+  fieldContent.addEventListener('input', function () {
+    if (contentArea.classList.contains('is-preview')) renderPreview();
+  });
+
+  // ---------- Image upload & insert ----------
+  const imageFile = $('[data-image-file]');
+  const imageStatus = $('[data-image-status]');
+  const insertImageBtn = $('[data-insert-image]');
+
+  function showImageStatus(text, isError) {
+    imageStatus.textContent = text;
+    imageStatus.hidden = false;
+    imageStatus.classList.toggle('is-error', !!isError);
+  }
+
+  function insertAtCursor(textarea, text) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = textarea.value.slice(0, start);
+    const after = textarea.value.slice(end);
+    textarea.value = before + text + after;
+    const pos = start + text.length;
+    textarea.selectionStart = textarea.selectionEnd = pos;
+    textarea.focus();
+  }
+
+  // 图片放在文章同级的 {date}-{slug}-img/ 目录下
+  function imageDirForPost() {
+    const cat = fieldCategory.value;
+    const date = fieldDate.value;
+    const slug = normalizeSlug(fieldSlug.value);
+    if (!date || !slug) return null;
+    const [y, m] = date.split('-');
+    return `_${cat}_posts/${y}/${m}/${date}-${slug}-img`;
+  }
+
+  insertImageBtn.addEventListener('click', function () {
+    if (!activeToken) return showImageStatus('请先解锁。', true);
+    if (!imageDirForPost()) return showImageStatus('请先填写日期和 slug，再插入图片。', true);
+    imageFile.click();
+  });
+
+  imageFile.addEventListener('change', async function () {
+    const file = imageFile.files && imageFile.files[0];
+    if (!file) return;
+    const dir = imageDirForPost();
+    if (!dir) { showImageStatus('请先填写日期和 slug。', true); return; }
+
+    // 文件名：规范化 + 时间戳避免冲突
+    const extMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
+    const ext = extMatch ? extMatch[1].toLowerCase() : 'png';
+    const baseName = normalizeSlug(file.name.replace(/\.[^.]+$/, '')) || 'image';
+    const stamp = Date.now().toString().slice(-6);
+    const fileName = `${baseName}-${stamp}.${ext}`;
+    const path = `${dir}/${fileName}`;
+
+    showImageStatus('上传中…');
+    insertImageBtn.disabled = true;
+
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const b64 = String(dataUrl).split(',')[1];
+
+      const res = await fetch(contentsUrl(path), {
+        method: 'PUT',
+        headers: apiHeaders(),
+        body: JSON.stringify({
+          message: 'upload image: ' + fileName,
+          content: b64,
+          branch: BRANCH
+        })
+      });
+
+      if (res.ok) {
+        const lq = '{' + '{';
+        const rq = '}' + '}';
+        const ref = '![' + baseName + '](' + lq + ' "/' + path + '" | relative_url ' + rq + ')';
+        insertAtCursor(fieldContent, '\n' + ref + '\n');
+        if (contentArea.classList.contains('is-preview')) renderPreview();
+        showImageStatus('已上传并插入引用：' + fileName);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showImageStatus('上传失败（' + res.status + '）：' + (err.message || '未知错误'), true);
+      }
+    } catch (e) {
+      showImageStatus('上传出错：' + e.message, true);
+    } finally {
+      insertImageBtn.disabled = false;
+      imageFile.value = '';
     }
   });
 
