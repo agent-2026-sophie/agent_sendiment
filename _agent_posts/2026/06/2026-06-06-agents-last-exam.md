@@ -206,9 +206,6 @@ ALE 从两个正交维度组合每个任务的评估：
 | Claude Code + Sonnet 4.6 | 31.4 | 12.7 | 0.0 | 17.1 | \\$378 |
 
 
-![2026-06-06-18-04-36]({{ "/_agent_posts/2026/06/2026-06-06-agents-last-exam-img/2026-06-06-18-04-36-308162.png" | relative_url }})
-
-
 **模型能力对比（固定** **OpenClaw** **Harness）：** 
 
 | **模型** | **Near-Term Pass%** | **Full-Spec Pass%** | **Last-Exam Pass%** | **Overall Pass%** |
@@ -289,4 +286,5 @@ ALE 设计为动态演化的基准：
 - 私有任务定期轮换到公开集
 	
 - 新行业和工作流持续引入
+
 
