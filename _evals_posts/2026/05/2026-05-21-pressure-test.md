@@ -3,7 +3,7 @@ title: 模型压测
 date: 2026-05-21
 author: Sophie
 tags: [Evaluation]
-excerpt: TODO
+excerpt: 压测是指在可控条件下持续向服务施加负载，观察服务在不同并发、请求量和请求参数下的表现。
 ---
 # 模型压测说明
 
