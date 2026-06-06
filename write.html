@@ -127,7 +127,11 @@ sitemap: false
 
       <div class="writer-publish-bar">
         <span class="writer-target" data-target-path></span>
-        <button type="button" class="writer-btn" data-publish>发布</button>
+        <div class="writer-publish-actions">
+          <span class="writer-draft-status" data-draft-status hidden></span>
+          <button type="button" class="writer-btn-ghost" data-clear-draft>清空草稿</button>
+          <button type="button" class="writer-btn" data-publish>发布</button>
+        </div>
       </div>
 
       <p class="writer-publish-msg" data-publish-msg hidden></p>
@@ -678,6 +682,7 @@ sitemap: false
         fieldContent.value = '';
         slugEditedManually = false;
         updateTargetPath();
+        clearDraft(true);
       }
     } catch (e) {
       showPublishMsg('网络错误：' + e.message, true);
@@ -809,7 +814,115 @@ sitemap: false
     }
   });
 
+  // ---------- Draft auto-save ----------
+  const DRAFT_KEY = 'writer-draft';
+  const draftStatus = $('[data-draft-status]');
+  const draftFields = {
+    category: fieldCategory,
+    date: fieldDate,
+    title: fieldTitle,
+    slug: fieldSlug,
+    tags: fieldTags,
+    excerpt: fieldExcerpt,
+    content: fieldContent
+  };
+  let draftTimer = null;
+
+  function showDraftStatus(text) {
+    draftStatus.textContent = text;
+    draftStatus.hidden = false;
+  }
+
+  function collectDraft() {
+    const data = {};
+    Object.keys(draftFields).forEach((k) => { data[k] = draftFields[k].value; });
+    data.slugEditedManually = slugEditedManually;
+    data.editing = editing;
+    data.savedAt = Date.now();
+    return data;
+  }
+
+  function saveDraft() {
+    // 编辑已有文章时不覆盖草稿，避免和已发布内容混淆
+    if (editing) return;
+    const data = collectDraft();
+    // 全空则不保存
+    const hasContent = data.title || data.slug || data.tags || data.excerpt || data.content;
+    if (!hasContent) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      const t = new Date(data.savedAt);
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      const ss = String(t.getSeconds()).padStart(2, '0');
+      showDraftStatus('草稿已保存 ' + hh + ':' + mm + ':' + ss);
+    } catch (e) {
+      showDraftStatus('草稿保存失败');
+    }
+  }
+
+  function scheduleSaveDraft() {
+    if (draftTimer) clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraft, 800);
+  }
+
+  function clearDraft(silent) {
+    localStorage.removeItem(DRAFT_KEY);
+    if (!silent) {
+      draftStatus.hidden = true;
+      draftStatus.textContent = '';
+    }
+  }
+
+  function restoreDraft() {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    let data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+    if (!data) return;
+    fieldCategory.value = data.category || 'llm';
+    if (data.date) fieldDate.value = data.date;
+    fieldTitle.value = data.title || '';
+    fieldSlug.value = data.slug || '';
+    fieldTags.value = data.tags || '';
+    fieldExcerpt.value = data.excerpt || '';
+    fieldContent.value = data.content || '';
+    slugEditedManually = !!data.slugEditedManually;
+    updateTargetPath();
+    const t = data.savedAt ? new Date(data.savedAt) : null;
+    showDraftStatus(t
+      ? '已恢复草稿（保存于 ' + t.toLocaleString() + '）'
+      : '已恢复上次草稿');
+  }
+
+  // 监听所有字段变更，自动保存
+  Object.keys(draftFields).forEach((k) => {
+    const el = draftFields[k];
+    el.addEventListener('input', scheduleSaveDraft);
+    el.addEventListener('change', scheduleSaveDraft);
+  });
+
+  // 关闭/刷新前立即保存
+  window.addEventListener('beforeunload', function () {
+    if (!editing) saveDraft();
+  });
+
+  $('[data-clear-draft]').addEventListener('click', function () {
+    if (!confirm('确定清空当前草稿吗？此操作不可撤销。')) return;
+    clearDraft();
+    fieldTitle.value = '';
+    fieldSlug.value = '';
+    fieldTags.value = '';
+    fieldExcerpt.value = '';
+    fieldContent.value = '';
+    slugEditedManually = false;
+    fieldDate.value = new Date().toISOString().slice(0, 10);
+    updateTargetPath();
+    if (contentArea.classList.contains('is-preview')) renderPreview();
+  });
+
   // init
   renderAuthState();
+  restoreDraft();
 })();
 </script>

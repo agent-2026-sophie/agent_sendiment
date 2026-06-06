@@ -1608,6 +1608,18 @@ body.is-search-open {
   font-family: "SFMono-Regular", Consolas, monospace;
 }
 
+.writer-publish-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.writer-draft-status {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 @media (max-width: 640px) {
   .writer-grid {
     grid-template-columns: 1fr;
