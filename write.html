@@ -8,6 +8,9 @@ sitemap: false
 ---
 
 {% assign repo_name = site.baseurl | remove: "/" %}
+{% assign empty_posts = "" | split: "," %}
+{% assign evals_posts = site.evals_posts | default: empty_posts %}
+{% assign all_posts = site.llm_posts | concat: site.agent_posts | concat: evals_posts | sort: 'date' | reverse %}
 
 <div class="container writer-page"
      data-repo-owner="{{ site.author.github }}"
@@ -57,57 +60,90 @@ sitemap: false
   <!-- 编辑区域 -->
   <section class="writer-editor" data-writer-editor hidden>
     <div class="writer-editor-head">
-      <h1 class="writer-title">写文章</h1>
+      <div class="writer-tabs">
+        <button type="button" class="writer-tab is-active" data-tab="compose">新建 / 编辑</button>
+        <button type="button" class="writer-tab" data-tab="manage">管理文章</button>
+      </div>
       <button type="button" class="writer-btn-ghost" data-lock>锁定</button>
     </div>
 
-    <div class="writer-grid">
+    <!-- 撰写面板 -->
+    <div data-panel="compose">
+      <div class="writer-mode-banner" data-edit-banner hidden>
+        正在编辑：<strong data-edit-path></strong>
+        <button type="button" class="writer-link-btn" data-cancel-edit>取消编辑，新建文章</button>
+      </div>
+
+      <div class="writer-grid">
+        <label class="writer-field">
+          <span>栏目</span>
+          <select data-field-category>
+            <option value="llm">LLM</option>
+            <option value="agent">Agent</option>
+            <option value="evals">Evaluation</option>
+          </select>
+        </label>
+        <label class="writer-field">
+          <span>日期</span>
+          <input type="date" data-field-date>
+        </label>
+      </div>
+
       <label class="writer-field">
-        <span>栏目</span>
-        <select data-field-category>
-          <option value="llm">LLM</option>
-          <option value="agent">Agent</option>
-          <option value="evals">Evaluation</option>
-        </select>
+        <span>标题（可中文）</span>
+        <input type="text" data-field-title placeholder="文章标题">
       </label>
+
       <label class="writer-field">
-        <span>日期</span>
-        <input type="date" data-field-date>
+        <span>Slug（英文，用于文件名与链接）</span>
+        <input type="text" data-field-slug placeholder="例如 first-party-vs-third-party-eval">
+        <small class="writer-field-note" data-slug-note></small>
       </label>
+
+      <label class="writer-field">
+        <span>标签（逗号分隔，可留空）</span>
+        <input type="text" data-field-tags placeholder="LLM, Eval">
+      </label>
+
+      <label class="writer-field">
+        <span>摘要 Excerpt</span>
+        <textarea data-field-excerpt rows="2" placeholder="一句话摘要"></textarea>
+      </label>
+
+      <label class="writer-field">
+        <span>正文（Markdown）</span>
+        <textarea data-field-content rows="18" placeholder="## 背景&#10;&#10;..."></textarea>
+      </label>
+
+      <div class="writer-publish-bar">
+        <span class="writer-target" data-target-path></span>
+        <button type="button" class="writer-btn" data-publish>发布</button>
+      </div>
+
+      <p class="writer-publish-msg" data-publish-msg hidden></p>
     </div>
 
-    <label class="writer-field">
-      <span>标题（可中文）</span>
-      <input type="text" data-field-title placeholder="文章标题">
-    </label>
-
-    <label class="writer-field">
-      <span>Slug（英文，用于文件名与链接）</span>
-      <input type="text" data-field-slug placeholder="例如 first-party-vs-third-party-eval">
-      <small class="writer-field-note" data-slug-note></small>
-    </label>
-
-    <label class="writer-field">
-      <span>标签（逗号分隔，可留空）</span>
-      <input type="text" data-field-tags placeholder="LLM, Eval">
-    </label>
-
-    <label class="writer-field">
-      <span>摘要 Excerpt</span>
-      <textarea data-field-excerpt rows="2" placeholder="一句话摘要"></textarea>
-    </label>
-
-    <label class="writer-field">
-      <span>正文（Markdown）</span>
-      <textarea data-field-content rows="18" placeholder="## 背景&#10;&#10;..."></textarea>
-    </label>
-
-    <div class="writer-publish-bar">
-      <span class="writer-target" data-target-path></span>
-      <button type="button" class="writer-btn" data-publish>发布</button>
+    <!-- 管理面板 -->
+    <div data-panel="manage" hidden>
+      <p class="writer-hint">点击「编辑」将文章载入撰写面板修改后重新发布；「删除」会移除该文件并触发重新部署。</p>
+      <ul class="writer-post-list">
+        {% for post in all_posts %}
+          <li class="writer-post-item"
+              data-post-path="{{ post.path }}"
+              data-post-category="{{ post.category }}">
+            <div class="writer-post-meta">
+              <span class="writer-post-title">{{ post.title }}</span>
+              <span class="writer-post-sub">{{ post.date | date: "%Y-%m-%d" }} · {{ post.category }}</span>
+            </div>
+            <div class="writer-post-actions">
+              <button type="button" class="writer-btn-ghost" data-edit-post>编辑</button>
+              <button type="button" class="writer-btn-danger" data-delete-post>删除</button>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <p class="writer-manage-msg" data-manage-msg hidden></p>
     </div>
-
-    <p class="writer-publish-msg" data-publish-msg hidden></p>
   </section>
 </div>
 
@@ -254,6 +290,7 @@ sitemap: false
 
   // ---------- Editor logic ----------
   const categoryMap = { llm: 'LLM', agent: 'Agent', evals: 'Evaluation' };
+  const categoryToKey = { 'LLM': 'llm', 'Agent': 'agent', 'Evaluation': 'evals' };
   const fieldCategory = $('[data-field-category]');
   const fieldDate = $('[data-field-date]');
   const fieldTitle = $('[data-field-title]');
@@ -264,6 +301,13 @@ sitemap: false
   const fieldContent = $('[data-field-content]');
   const targetPath = $('[data-target-path]');
   const publishMsg = $('[data-publish-msg]');
+  const publishBtn = $('[data-publish]');
+  const editBanner = $('[data-edit-banner]');
+  const editPathLabel = $('[data-edit-path]');
+  const manageMsg = $('[data-manage-msg]');
+
+  // editing state: null = create mode; otherwise { path, sha }
+  let editing = null;
 
   // default date = today
   fieldDate.value = new Date().toISOString().slice(0, 10);
@@ -310,7 +354,15 @@ sitemap: false
 
   function updateTargetPath() {
     const path = buildPath();
-    targetPath.textContent = path ? '将创建：' + path : '请填写日期与 slug';
+    if (editing) {
+      if (path && path !== editing.path) {
+        targetPath.textContent = '将重命名为：' + path + '（删除原文件）';
+      } else {
+        targetPath.textContent = '将更新：' + editing.path;
+      }
+    } else {
+      targetPath.textContent = path ? '将创建：' + path : '请填写日期与 slug';
+    }
   }
   updateTargetPath();
 
@@ -338,13 +390,196 @@ sitemap: false
     return btoa(unescape(encodeURIComponent(str)));
   }
 
+  function b64ToUtf8(b64) {
+    return decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
+  }
+
   function showPublishMsg(html, isError) {
     publishMsg.innerHTML = html;
     publishMsg.hidden = false;
     publishMsg.classList.toggle('is-error', !!isError);
   }
 
-  $('[data-publish]').addEventListener('click', async function () {
+  function showManageMsg(html, isError) {
+    manageMsg.innerHTML = html;
+    manageMsg.hidden = false;
+    manageMsg.classList.toggle('is-error', !!isError);
+  }
+
+  function apiHeaders() {
+    return {
+      'Authorization': 'token ' + activeToken,
+      'Accept': 'application/vnd.github+json'
+    };
+  }
+
+  function contentsUrl(path) {
+    return `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+  }
+
+  // ---------- Tabs ----------
+  const tabs = page.querySelectorAll('.writer-tab');
+  const panels = {
+    compose: page.querySelector('[data-panel="compose"]'),
+    manage: page.querySelector('[data-panel="manage"]')
+  };
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', function () {
+      tabs.forEach((t) => t.classList.toggle('is-active', t === tab));
+      const name = tab.dataset.tab;
+      panels.compose.hidden = name !== 'compose';
+      panels.manage.hidden = name !== 'manage';
+    });
+  });
+
+  function switchToCompose() {
+    tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.tab === 'compose'));
+    panels.compose.hidden = false;
+    panels.manage.hidden = true;
+  }
+
+  // ---------- Edit / Delete ----------
+  function setEditingMode(path, sha) {
+    editing = { path: path, sha: sha };
+    editBanner.hidden = false;
+    editPathLabel.textContent = path;
+    publishBtn.textContent = '更新';
+    slugEditedManually = true;
+    updateTargetPath();
+  }
+
+  function clearEditingMode() {
+    editing = null;
+    editBanner.hidden = true;
+    editPathLabel.textContent = '';
+    publishBtn.textContent = '发布';
+    updateTargetPath();
+  }
+
+  // 解析 front matter，回填表单
+  function loadIntoForm(path, category, rawText) {
+    const m = rawText.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+    let body = rawText;
+    const fm = {};
+    if (m) {
+      m[1].split('\n').forEach((line) => {
+        const idx = line.indexOf(':');
+        if (idx === -1) return;
+        const key = line.slice(0, idx).trim();
+        let val = line.slice(idx + 1).trim();
+        fm[key] = val;
+      });
+      body = m[2];
+    }
+
+    fieldCategory.value = categoryToKey[category] || 'llm';
+    if (fm.date) fieldDate.value = fm.date.slice(0, 10);
+    fieldTitle.value = (fm.title || '').replace(/^["']|["']$/g, '');
+    fieldExcerpt.value = (fm.excerpt || '').replace(/^["']|["']$/g, '');
+    if (fm.tags) {
+      fieldTags.value = fm.tags.replace(/^\[|\]$/g, '').trim();
+    } else {
+      fieldTags.value = '';
+    }
+
+    // 从文件路径反推 slug：date-slug.md
+    const fileName = path.split('/').pop().replace(/\.md$/, '');
+    const slugMatch = fileName.match(/^\d{4}-\d{2}-\d{2}-(.+)$/);
+    fieldSlug.value = slugMatch ? slugMatch[1] : fileName;
+    slugNote.textContent = '';
+
+    fieldContent.value = body.replace(/^\n+/, '');
+  }
+
+  page.querySelectorAll('[data-edit-post]').forEach((btn) => {
+    btn.addEventListener('click', async function () {
+      if (!activeToken) return showManageMsg('请先解锁。', true);
+      const item = btn.closest('.writer-post-item');
+      const path = item.dataset.postPath;
+      const category = item.dataset.postCategory;
+      btn.disabled = true;
+      btn.textContent = '载入中…';
+      try {
+        const res = await fetch(contentsUrl(path) + '?ref=' + BRANCH, { headers: apiHeaders() });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showManageMsg('载入失败（' + res.status + '）：' + (err.message || '未知错误'), true);
+          return;
+        }
+        const data = await res.json();
+        const text = b64ToUtf8(data.content);
+        loadIntoForm(path, category, text);
+        setEditingMode(path, data.sha);
+        publishMsg.hidden = true;
+        switchToCompose();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        showManageMsg('网络错误：' + e.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '编辑';
+      }
+    });
+  });
+
+  page.querySelectorAll('[data-delete-post]').forEach((btn) => {
+    btn.addEventListener('click', async function () {
+      if (!activeToken) return showManageMsg('请先解锁。', true);
+      const item = btn.closest('.writer-post-item');
+      const path = item.dataset.postPath;
+      const title = item.querySelector('.writer-post-title').textContent;
+      if (!confirm('确定删除文章「' + title + '」吗？\n' + path + '\n此操作会触发重新部署，且不可在网页端撤销。')) return;
+      btn.disabled = true;
+      btn.textContent = '删除中…';
+      try {
+        // 先取 sha
+        const getRes = await fetch(contentsUrl(path) + '?ref=' + BRANCH, { headers: apiHeaders() });
+        if (!getRes.ok) {
+          const err = await getRes.json().catch(() => ({}));
+          showManageMsg('删除失败，无法获取文件（' + getRes.status + '）：' + (err.message || ''), true);
+          return;
+        }
+        const fileData = await getRes.json();
+        const delRes = await fetch(contentsUrl(path), {
+          method: 'DELETE',
+          headers: apiHeaders(),
+          body: JSON.stringify({
+            message: 'delete post: ' + title,
+            sha: fileData.sha,
+            branch: BRANCH
+          })
+        });
+        if (delRes.ok) {
+          item.classList.add('is-removed');
+          const actions = item.querySelector('.writer-post-actions');
+          if (actions) actions.innerHTML = '<span class="writer-removed-tag">已删除</span>';
+          showManageMsg('已删除「' + title + '」，约 1-2 分钟后线上生效。');
+        } else {
+          const err = await delRes.json().catch(() => ({}));
+          showManageMsg('删除失败（' + delRes.status + '）：' + (err.message || '未知错误'), true);
+        }
+      } catch (e) {
+        showManageMsg('网络错误：' + e.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '删除';
+      }
+    });
+  });
+
+  $('[data-cancel-edit]').addEventListener('click', function () {
+    clearEditingMode();
+    fieldTitle.value = '';
+    fieldSlug.value = '';
+    fieldTags.value = '';
+    fieldExcerpt.value = '';
+    fieldContent.value = '';
+    slugEditedManually = false;
+    fieldDate.value = new Date().toISOString().slice(0, 10);
+    publishMsg.hidden = true;
+  });
+
+  publishBtn.addEventListener('click', async function () {
     if (!activeToken) return showPublishMsg('请先解锁。', true);
     const path = buildPath();
     if (!path) return showPublishMsg('请填写有效的日期和英文 slug。', true);
@@ -352,54 +587,92 @@ sitemap: false
 
     const btn = this;
     btn.disabled = true;
-    btn.textContent = '发布中…';
+    const originalLabel = editing ? '更新' : '发布';
+    btn.textContent = editing ? '更新中…' : '发布中…';
 
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
-    const headers = {
-      'Authorization': 'token ' + activeToken,
-      'Accept': 'application/vnd.github+json'
-    };
+    const headers = apiHeaders();
 
     try {
-      // 检查文件是否已存在
-      const checkRes = await fetch(apiUrl + '?ref=' + BRANCH, { headers });
+      if (editing && path === editing.path) {
+        // 原地更新
+        const res = await fetch(contentsUrl(path), {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            message: 'update post: ' + fieldTitle.value.trim(),
+            content: utf8ToB64(buildMarkdown()),
+            sha: editing.sha,
+            branch: BRANCH
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          editing.sha = data.content.sha;
+          const commitUrl = data.commit && data.commit.html_url;
+          showPublishMsg('更新成功！约 1-2 分钟后生效。' +
+            (commitUrl ? ' <a href="' + commitUrl + '" target="_blank" rel="noopener">查看提交</a>' : ''));
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showPublishMsg('更新失败（' + res.status + '）：' + (err.message || '未知错误'), true);
+        }
+        return;
+      }
+
+      // 新建，或编辑时改了路径（重命名）：先查重再创建
+      const checkRes = await fetch(contentsUrl(path) + '?ref=' + BRANCH, { headers });
       if (checkRes.status === 200) {
         showPublishMsg('该路径文件已存在，请更换 slug 或日期。', true);
         return;
       }
 
-      const res = await fetch(apiUrl, {
+      const createRes = await fetch(contentsUrl(path), {
         method: 'PUT',
         headers,
         body: JSON.stringify({
-          message: 'post: ' + fieldTitle.value.trim(),
+          message: (editing ? 'rename post: ' : 'post: ') + fieldTitle.value.trim(),
           content: utf8ToB64(buildMarkdown()),
           branch: BRANCH
         })
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const commitUrl = data.commit && data.commit.html_url;
-        showPublishMsg(
-          '发布成功！GitHub Actions 正在部署，约 1-2 分钟后生效。' +
-          (commitUrl ? ' <a href="' + commitUrl + '" target="_blank" rel="noopener">查看提交</a>' : '')
-        );
+      if (!createRes.ok) {
+        const err = await createRes.json().catch(() => ({}));
+        showPublishMsg('发布失败（' + createRes.status + '）：' + (err.message || '未知错误'), true);
+        return;
+      }
+
+      const createData = await createRes.json();
+      const commitUrl = createData.commit && createData.commit.html_url;
+
+      // 如果是重命名，删除旧文件
+      if (editing && editing.path !== path) {
+        await fetch(contentsUrl(editing.path), {
+          method: 'DELETE',
+          headers,
+          body: JSON.stringify({
+            message: 'remove old post after rename: ' + editing.path,
+            sha: editing.sha,
+            branch: BRANCH
+          })
+        }).catch(() => {});
+        clearEditingMode();
+        showPublishMsg('已重命名并发布！原文件已删除，约 1-2 分钟后生效。' +
+          (commitUrl ? ' <a href="' + commitUrl + '" target="_blank" rel="noopener">查看提交</a>' : ''));
+      } else {
+        showPublishMsg('发布成功！GitHub Actions 正在部署，约 1-2 分钟后生效。' +
+          (commitUrl ? ' <a href="' + commitUrl + '" target="_blank" rel="noopener">查看提交</a>' : ''));
         fieldTitle.value = '';
         fieldSlug.value = '';
         fieldExcerpt.value = '';
         fieldContent.value = '';
         slugEditedManually = false;
         updateTargetPath();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        showPublishMsg('发布失败（' + res.status + '）：' + (err.message || '未知错误'), true);
       }
     } catch (e) {
       showPublishMsg('网络错误：' + e.message, true);
     } finally {
       btn.disabled = false;
-      btn.textContent = '发布';
+      btn.textContent = originalLabel;
     }
   });
 
