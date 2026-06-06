@@ -1435,3 +1435,181 @@ body.is-search-open {
     padding: 0;
   }
 }
+
+/* ---------- Writer / Editor Page ---------- */
+.header-write-link {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  padding: 0.3rem 0.9rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.header-write-link:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.writer-page {
+  max-width: 760px;
+  margin: 2rem auto 4rem;
+}
+
+.writer-title {
+  font-size: 1.4rem;
+  color: var(--primary-color);
+  margin-bottom: 1.2rem;
+}
+
+.writer-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 1.4rem;
+}
+
+.writer-hint code {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}
+
+.writer-field {
+  display: block;
+  margin-bottom: 1.1rem;
+}
+
+.writer-field > span {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.4rem;
+}
+
+.writer-field input,
+.writer-field select,
+.writer-field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  background: #fff;
+}
+
+.writer-field textarea {
+  resize: vertical;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  line-height: 1.6;
+}
+
+.writer-field input:focus,
+.writer-field select:focus,
+.writer-field textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.writer-field-note {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #d97706;
+}
+
+.writer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.writer-btn {
+  background: var(--primary-color);
+  color: #fff;
+  border: 0;
+  padding: 0.6rem 1.4rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.writer-btn:hover { opacity: 0.88; }
+.writer-btn:disabled { opacity: 0.5; cursor: default; }
+
+.writer-btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 0.55rem 1.1rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.writer-btn-ghost:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.writer-auth-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.writer-auth-msg,
+.writer-publish-msg {
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 5px;
+  font-size: 0.88rem;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.writer-auth-msg.is-error,
+.writer-publish-msg.is-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.writer-publish-msg a { color: inherit; text-decoration: underline; }
+
+.writer-editor-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.writer-publish-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.writer-target {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+@media (max-width: 640px) {
+  .writer-grid {
+    grid-template-columns: 1fr;
+  }
+}

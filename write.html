@@ -1,0 +1,409 @@
+---
+layout: default
+title: 写作
+heading: 写文章
+description: 在线撰写并发布文章
+permalink: /write/
+sitemap: false
+---
+
+{% assign repo_name = site.baseurl | remove: "/" %}
+
+<div class="container writer-page"
+     data-repo-owner="{{ site.author.github }}"
+     data-repo-name="{{ repo_name }}">
+
+  <!-- 鉴权区域 -->
+  <section class="writer-auth" data-writer-auth>
+    <h1 class="writer-title">发布鉴权</h1>
+
+    <!-- 首次设置：尚未保存 Token -->
+    <div class="writer-auth-setup" data-auth-setup hidden>
+      <p class="writer-hint">
+        首次使用：粘贴一个有 <code>repo</code> 权限的 GitHub Token，并设置一个发布密码。
+        Token 会用密码加密后保存在本地浏览器中，之后只需输入密码即可发布。
+      </p>
+      <label class="writer-field">
+        <span>GitHub Token</span>
+        <input type="password" data-setup-token placeholder="ghp_xxx 或 fine-grained token" autocomplete="off">
+      </label>
+      <label class="writer-field">
+        <span>设置发布密码</span>
+        <input type="password" data-setup-password placeholder="用于本地解锁 Token" autocomplete="new-password">
+      </label>
+      <label class="writer-field">
+        <span>确认密码</span>
+        <input type="password" data-setup-password-confirm placeholder="再次输入密码" autocomplete="new-password">
+      </label>
+      <button type="button" class="writer-btn" data-setup-save>保存并解锁</button>
+    </div>
+
+    <!-- 解锁：已保存 Token -->
+    <div class="writer-auth-unlock" data-auth-unlock hidden>
+      <p class="writer-hint">输入发布密码以解锁写作。</p>
+      <label class="writer-field">
+        <span>发布密码</span>
+        <input type="password" data-unlock-password placeholder="发布密码" autocomplete="current-password">
+      </label>
+      <div class="writer-auth-actions">
+        <button type="button" class="writer-btn" data-unlock-submit>解锁</button>
+        <button type="button" class="writer-btn-ghost" data-reset-token>重置 Token</button>
+      </div>
+    </div>
+
+    <p class="writer-auth-msg" data-auth-msg hidden></p>
+  </section>
+
+  <!-- 编辑区域 -->
+  <section class="writer-editor" data-writer-editor hidden>
+    <div class="writer-editor-head">
+      <h1 class="writer-title">写文章</h1>
+      <button type="button" class="writer-btn-ghost" data-lock>锁定</button>
+    </div>
+
+    <div class="writer-grid">
+      <label class="writer-field">
+        <span>栏目</span>
+        <select data-field-category>
+          <option value="llm">LLM</option>
+          <option value="agent">Agent</option>
+          <option value="evals">Evaluation</option>
+        </select>
+      </label>
+      <label class="writer-field">
+        <span>日期</span>
+        <input type="date" data-field-date>
+      </label>
+    </div>
+
+    <label class="writer-field">
+      <span>标题（可中文）</span>
+      <input type="text" data-field-title placeholder="文章标题">
+    </label>
+
+    <label class="writer-field">
+      <span>Slug（英文，用于文件名与链接）</span>
+      <input type="text" data-field-slug placeholder="例如 first-party-vs-third-party-eval">
+      <small class="writer-field-note" data-slug-note></small>
+    </label>
+
+    <label class="writer-field">
+      <span>标签（逗号分隔，可留空）</span>
+      <input type="text" data-field-tags placeholder="LLM, Eval">
+    </label>
+
+    <label class="writer-field">
+      <span>摘要 Excerpt</span>
+      <textarea data-field-excerpt rows="2" placeholder="一句话摘要"></textarea>
+    </label>
+
+    <label class="writer-field">
+      <span>正文（Markdown）</span>
+      <textarea data-field-content rows="18" placeholder="## 背景&#10;&#10;..."></textarea>
+    </label>
+
+    <div class="writer-publish-bar">
+      <span class="writer-target" data-target-path></span>
+      <button type="button" class="writer-btn" data-publish>发布</button>
+    </div>
+
+    <p class="writer-publish-msg" data-publish-msg hidden></p>
+  </section>
+</div>
+
+<script>
+(function () {
+  const page = document.querySelector('.writer-page');
+  if (!page) return;
+
+  const REPO_OWNER = page.dataset.repoOwner;
+  const REPO_NAME = page.dataset.repoName;
+  const STORAGE_KEY = 'writer-encrypted-token';
+  const BRANCH = 'main';
+
+  const $ = (sel) => page.querySelector(sel);
+
+  const authSection = $('[data-writer-auth]');
+  const setupBox = $('[data-auth-setup]');
+  const unlockBox = $('[data-auth-unlock]');
+  const authMsg = $('[data-auth-msg]');
+  const editorSection = $('[data-writer-editor]');
+
+  let activeToken = null;
+
+  // ---------- Crypto helpers ----------
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+
+  const toB64 = (bytes) => btoa(String.fromCharCode.apply(null, Array.from(bytes)));
+  const fromB64 = (str) => Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
+
+  async function deriveKey(password, salt) {
+    const baseKey = await crypto.subtle.importKey(
+      'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function encryptToken(token, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const cipher = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv }, key, enc.encode(token)
+    );
+    return {
+      salt: toB64(salt),
+      iv: toB64(iv),
+      data: toB64(new Uint8Array(cipher))
+    };
+  }
+
+  async function decryptToken(payload, password) {
+    const key = await deriveKey(password, fromB64(payload.salt));
+    const plain = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: fromB64(payload.iv) }, key, fromB64(payload.data)
+    );
+    return dec.decode(plain);
+  }
+
+  // ---------- Auth UI ----------
+  function showAuthMsg(text, isError) {
+    authMsg.textContent = text;
+    authMsg.hidden = false;
+    authMsg.classList.toggle('is-error', !!isError);
+  }
+
+  function renderAuthState() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      setupBox.hidden = true;
+      unlockBox.hidden = false;
+    } else {
+      setupBox.hidden = false;
+      unlockBox.hidden = true;
+    }
+  }
+
+  function enterEditor() {
+    authSection.hidden = true;
+    editorSection.hidden = false;
+  }
+
+  // Setup
+  $('[data-setup-save]').addEventListener('click', async function () {
+    const token = $('[data-setup-token]').value.trim();
+    const pw = $('[data-setup-password]').value;
+    const pw2 = $('[data-setup-password-confirm]').value;
+    if (!token) return showAuthMsg('请填写 GitHub Token。', true);
+    if (pw.length < 4) return showAuthMsg('密码至少 4 位。', true);
+    if (pw !== pw2) return showAuthMsg('两次输入的密码不一致。', true);
+    try {
+      const payload = await encryptToken(token, pw);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      activeToken = token;
+      enterEditor();
+    } catch (e) {
+      showAuthMsg('加密失败：' + e.message, true);
+    }
+  });
+
+  // Unlock
+  $('[data-unlock-submit]').addEventListener('click', async function () {
+    const pw = $('[data-unlock-password]').value;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) { renderAuthState(); return; }
+    try {
+      const token = await decryptToken(JSON.parse(stored), pw);
+      activeToken = token;
+      enterEditor();
+    } catch (e) {
+      showAuthMsg('密码错误，无法解锁。', true);
+    }
+  });
+
+  $('[data-unlock-password]').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') $('[data-unlock-submit]').click();
+  });
+
+  // Reset token
+  $('[data-reset-token]').addEventListener('click', function () {
+    if (confirm('确定要清除本地保存的 Token 吗？清除后需重新设置。')) {
+      localStorage.removeItem(STORAGE_KEY);
+      activeToken = null;
+      authMsg.hidden = true;
+      renderAuthState();
+    }
+  });
+
+  // Lock
+  $('[data-lock]').addEventListener('click', function () {
+    activeToken = null;
+    editorSection.hidden = true;
+    authSection.hidden = false;
+    $('[data-unlock-password]').value = '';
+    authMsg.hidden = true;
+    renderAuthState();
+  });
+
+  // ---------- Editor logic ----------
+  const categoryMap = { llm: 'LLM', agent: 'Agent', evals: 'Evaluation' };
+  const fieldCategory = $('[data-field-category]');
+  const fieldDate = $('[data-field-date]');
+  const fieldTitle = $('[data-field-title]');
+  const fieldSlug = $('[data-field-slug]');
+  const slugNote = $('[data-slug-note]');
+  const fieldTags = $('[data-field-tags]');
+  const fieldExcerpt = $('[data-field-excerpt]');
+  const fieldContent = $('[data-field-content]');
+  const targetPath = $('[data-target-path]');
+  const publishMsg = $('[data-publish-msg]');
+
+  // default date = today
+  fieldDate.value = new Date().toISOString().slice(0, 10);
+
+  function normalizeSlug(raw) {
+    return raw
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  let slugEditedManually = false;
+  fieldSlug.addEventListener('input', function () {
+    slugEditedManually = true;
+    const norm = normalizeSlug(fieldSlug.value);
+    if (norm !== fieldSlug.value) {
+      slugNote.textContent = '将规范化为：' + (norm || '（空，请输入英文）');
+    } else {
+      slugNote.textContent = '';
+    }
+    updateTargetPath();
+  });
+
+  fieldTitle.addEventListener('input', function () {
+    if (!slugEditedManually) {
+      const norm = normalizeSlug(fieldTitle.value);
+      fieldSlug.value = norm;
+      slugNote.textContent = norm ? '' : '标题为中文时无法自动生成，请手动输入英文 slug。';
+      updateTargetPath();
+    }
+  });
+
+  [fieldCategory, fieldDate].forEach((el) => el.addEventListener('change', updateTargetPath));
+
+  function buildPath() {
+    const cat = fieldCategory.value;
+    const date = fieldDate.value;
+    const slug = normalizeSlug(fieldSlug.value);
+    if (!date || !slug) return null;
+    const [y, m] = date.split('-');
+    return `_${cat}_posts/${y}/${m}/${date}-${slug}.md`;
+  }
+
+  function updateTargetPath() {
+    const path = buildPath();
+    targetPath.textContent = path ? '将创建：' + path : '请填写日期与 slug';
+  }
+  updateTargetPath();
+
+  function buildMarkdown() {
+    const cat = fieldCategory.value;
+    const tagList = fieldTags.value
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (tagList.length === 0) tagList.push(categoryMap[cat]);
+    const fm = [
+      '---',
+      'title: ' + (fieldTitle.value.trim() || 'TODO'),
+      'date: ' + fieldDate.value,
+      'author: Sophie',
+      'tags: [' + tagList.join(', ') + ']',
+      'excerpt: ' + (fieldExcerpt.value.trim() || 'TODO'),
+      '---',
+      ''
+    ].join('\n');
+    return fm + (fieldContent.value || '') + '\n';
+  }
+
+  function utf8ToB64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function showPublishMsg(html, isError) {
+    publishMsg.innerHTML = html;
+    publishMsg.hidden = false;
+    publishMsg.classList.toggle('is-error', !!isError);
+  }
+
+  $('[data-publish]').addEventListener('click', async function () {
+    if (!activeToken) return showPublishMsg('请先解锁。', true);
+    const path = buildPath();
+    if (!path) return showPublishMsg('请填写有效的日期和英文 slug。', true);
+    if (!fieldTitle.value.trim()) return showPublishMsg('请填写标题。', true);
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = '发布中…';
+
+    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+    const headers = {
+      'Authorization': 'token ' + activeToken,
+      'Accept': 'application/vnd.github+json'
+    };
+
+    try {
+      // 检查文件是否已存在
+      const checkRes = await fetch(apiUrl + '?ref=' + BRANCH, { headers });
+      if (checkRes.status === 200) {
+        showPublishMsg('该路径文件已存在，请更换 slug 或日期。', true);
+        return;
+      }
+
+      const res = await fetch(apiUrl, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          message: 'post: ' + fieldTitle.value.trim(),
+          content: utf8ToB64(buildMarkdown()),
+          branch: BRANCH
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const commitUrl = data.commit && data.commit.html_url;
+        showPublishMsg(
+          '发布成功！GitHub Actions 正在部署，约 1-2 分钟后生效。' +
+          (commitUrl ? ' <a href="' + commitUrl + '" target="_blank" rel="noopener">查看提交</a>' : '')
+        );
+        fieldTitle.value = '';
+        fieldSlug.value = '';
+        fieldExcerpt.value = '';
+        fieldContent.value = '';
+        slugEditedManually = false;
+        updateTargetPath();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showPublishMsg('发布失败（' + res.status + '）：' + (err.message || '未知错误'), true);
+      }
+    } catch (e) {
+      showPublishMsg('网络错误：' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '发布';
+    }
+  });
+
+  // init
+  renderAuthState();
+})();
+</script>
