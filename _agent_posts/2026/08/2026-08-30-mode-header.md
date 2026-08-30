@@ -218,3 +218,5 @@ x-arkbff-env: pperelease
 - **不同环境不同 Profile**：ModHeader 支持多 Profile 切换，可分别配置 hotfix / ppe / boe，按需切换。
 - **团队共享**：Header Editor / ModHeader 都支持导出 JSON，团队内可共享规则集。
 
+备注：chrome浏览器插件 [ModHeader](chrome-extension://agjgpcfameghogaldmbdjbdihdhjepbb/options.html#/)
+
