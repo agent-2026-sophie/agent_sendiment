@@ -3,7 +3,7 @@ title: 小流量头
 date: 2026-08-30
 author: Sophie
 tags: [basics]
-excerpt: "浏览器小流量头"（Small Traffic Header）
+excerpt: 浏览器小流量头"（Small Traffic Header）
 ---
 ## 一、请求头 vs 响应头
 
@@ -217,3 +217,4 @@ x-arkbff-env: pperelease
 - **联调完及时关**：养成"用完即关"的习惯，避免长期挂着影响埋点和 AB 数据。
 - **不同环境不同 Profile**：ModHeader 支持多 Profile 切换，可分别配置 hotfix / ppe / boe，按需切换。
 - **团队共享**：Header Editor / ModHeader 都支持导出 JSON，团队内可共享规则集。
+
