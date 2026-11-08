@@ -3,7 +3,7 @@ title: MCP 与 HTTP/REST 的区别
 date: 2026-08-15
 author: Sophie
 tags: [Agent, MCP, A2A]
-excerpt: TODO
+excerpt: MCP 用了 HTTP 做底层传输,并在上面加了一套面向大模型的标准约定。
 ---
 一句话:**它们不在同一个层次上。** HTTP/REST 是"传输层 + 通用 Web 接口风格",MCP 是"专为 AI Agent 调用工具设计的应用层协议",而且 MCP 实际上**还是跑在 HTTP 之上的**。所以严格说不是二选一的对立关系,而是"MCP 用了 HTTP 做底层传输,并在上面加了一套面向大模型的标准约定"。
 
@@ -51,5 +51,6 @@ REST 是给"确定性程序"用的——你写死代码 `requests.get(...)`。MC
 - **如果接口是给 AI Agent 用的 → 选 MCP**(自动发现、免适配、模型友好);**如果是给传统程序/前端用的 → REST 更直接通用**。
 
 > 场景示例:万得 Wind Alice 选 MCP 而不是裸 REST,正是因为目标使用者是 AI Agent,要的就是"任何支持 MCP 的 Agent 零改造即插即用"这个特性。
+
 
 
