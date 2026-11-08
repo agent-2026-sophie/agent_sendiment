@@ -3,7 +3,7 @@ title: Agent任务设计框架 Harbor Framework
 date: 2026-06-09
 author: Sophie
 tags: [agent, task, standard]
-excerpt: TODO
+excerpt: Harbor 是用于在容器环境中评测和优化智能体与模型的框架。
 ---
 > **调研对象**：Harbor Framework 官方文档全站（https://www.harborframework.com/docs）
 > **覆盖范围**：Motivation、Getting Started、Core Concepts、Migrating、Run Jobs、Tasks、Datasets、Sharing、Agents（含 Terminus-2、ATIF）、Training Workflows、Reward Kit、Contributing 等全部章节。
@@ -325,6 +325,7 @@ flowchart TD
 4. **智能体生态完善**：预集成主流 CLI 智能体，自带参考实现 Terminus-2（单工具 + 自治），支持自定义 External/Installed 智能体与 ATIF 标准轨迹。
 5. **Reward Kit 降本**：目录即 verifier、20+ 内置标准、原生 LLM/Agent-as-a-Judge、隔离评估，消除 verifier 样板代码。
 6. **规模化与协作**：深度集成多家云沙箱实现横向扩展；registry + Harbor Hub 支持任务/数据集/job 的发布、分享与排行榜提交。
+
 
 
 
