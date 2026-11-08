@@ -3,7 +3,7 @@ title: EdgeBench 长程任务
 date: 2026-07-25
 author: Sophie
 tags: [长程任务]
-excerpt: TODO
+excerpt: EdgeBench 试图回答一个现有评测缺失的问题：**自主** **Agent** **能否在陌生的真实环境中「从经验中学习」**。
 ---
 **一句话概括**：EdgeBench 是字节跳动 Seed 团队于 2026 年 7 月开源的智能体评测基准，包含 **134 个真实世界任务**（公开 51 个），核心目标不是测「一次性完成能力」，而是测量自主 Agent 在**可执行环境中长时间（12 小时以上）迭代学习**的能力，并首次发现环境学习性能遵循 **log-sigmoid 扩展定律（R² = 0.998）**。
 
@@ -204,4 +204,5 @@ $$S(t) = \\frac{S\_{\\max}}{1 + (t\_{\\mathrm{mid}}/t)^{\\beta}$$
 | HuggingFace 数据集（51 公开任务） | [https://huggingface.co/datasets/ByteDance-Seed/EdgeBench](https://huggingface.co/datasets/ByteDance-Seed/EdgeBench) |
 | SForge 评测框架文档 | [https://bytedance-seed.github.io/EdgeBench/](https://bytedance-seed.github.io/EdgeBench/) |
 | 全量 134 任务评测联系人 | zhongshu@bytedance.com |
+
 
