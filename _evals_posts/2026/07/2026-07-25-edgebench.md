@@ -204,3 +204,4 @@ $$S(t) = \\frac{S\_{\\max}}{1 + (t\_{\\mathrm{mid}}/t)^{\\beta}$$
 | HuggingFace 数据集（51 公开任务） | [https://huggingface.co/datasets/ByteDance-Seed/EdgeBench](https://huggingface.co/datasets/ByteDance-Seed/EdgeBench) |
 | SForge 评测框架文档 | [https://bytedance-seed.github.io/EdgeBench/](https://bytedance-seed.github.io/EdgeBench/) |
 | 全量 134 任务评测联系人 | zhongshu@bytedance.com |
+
