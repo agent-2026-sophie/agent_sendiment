@@ -3,7 +3,7 @@ title: 幻觉评估集：AA-OmniScience & SimpleQA-Verified
 date: 2026-07-28
 author: Sophie
 tags: [LLM]
-excerpt: TODO
+excerpt: AA-Omniscience 测试模型的知识储备与"知道自己不知道"的能力（幻觉控制）。
 ---
 > 主题：LLM 事实性与幻觉评测基准
 
@@ -232,5 +232,6 @@ $$F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + 
 3. Artificial Analysis 方法论：[intelligence-benchmarking](https://artificialanalysis.ai/methodology/intelligence-benchmarking#aa-omniscience)
 4. AA-Omniscience 数据集：[HuggingFace](https://huggingface.co/datasets/ArtificialAnalysis/AA-Omniscience-Public)
 5. SimpleQA-Verified 数据集：[HuggingFace](https://huggingface.co/datasets/google/simpleqa-verified)
+
 
 
