@@ -3,7 +3,7 @@ title: 跨 Turn User CoT 清除策略
 date: 2026-08-11
 author: Sophie
 tags: [agent, API feature]
-excerpt: TODO
+excerpt: 当前 user turn 完成后，这一轮由用户问题触发的隐藏推理状态不会作为隐藏 CoT 继续保留到下一个 user turn。
 ---
 ## 1. 背景说明
 
@@ -161,6 +161,7 @@ CoT 可能包含模型对用户意图、敏感信息、工具结果的内部归�
 最终权衡是：
 
 > 保留历史 User CoT 可能增强隐式记忆和连续推理能力，但会增加错误继承、隐私暴露和评测污染风险；删除历史 User CoT 更安全、边界更清晰，但可能降低依赖隐式状态的多轮任务表现。
+
 
 
 
