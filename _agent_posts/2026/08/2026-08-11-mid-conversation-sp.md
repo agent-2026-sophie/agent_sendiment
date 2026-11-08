@@ -1,5 +1,5 @@
 ---
-title: Claude mid-conversation sp
+title: Claude mid-conversation SP
 date: 2026-08-11
 author: Sophie
 tags: [agent, harness]
@@ -227,6 +227,7 @@ response = client.beta.messages.create(
 - **不能当第一条消息**:`messages` 首条不能是 system(起始指令请用顶层 `system` 字段)。
 - **放置受限**:如第七节所述,错误位置返回 **400**。
 - **不放不可信内容**:Claude 把系统内容当 operator 指令执行,**不要**把原始工具输出、检索文档、网页内容等外部文本直接放进系统消息(会赋予其 operator 级权威),这类数据应保留在 `tool_result` 块中,并继续遵循防越狱/防注入的最佳实践。
+
 
 
 
