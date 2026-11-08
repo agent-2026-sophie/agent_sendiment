@@ -3,7 +3,7 @@ title: String 扁平格式与 Struct 嵌套格式 JSON 对比说明
 date: 2026-06-11
 author: Sophie
 tags: [agent, harness]
-excerpt: **String 扁平格式**是“把 JSON 当作一整段文本存储”；**Struct 嵌套格式**是“把 JSON 拆成有类型、有层级的结构化字段存储”。
+excerpt: String 扁平格式是“把 JSON 当作一整段文本存储”；**Struct 嵌套格式**是“把 JSON 拆成有类型、有层级的结构化字段存储”。
 ---
 ## 1. 一句话总结
 
@@ -350,6 +350,7 @@ rubrics: string
 
 
 **String 扁平格式更稳、更简单、更适合评测样本透传；Struct 嵌套格式更结构化、更适合分析查询，但对底层 Reader 和数据规模更敏感。**
+
 
 
 
