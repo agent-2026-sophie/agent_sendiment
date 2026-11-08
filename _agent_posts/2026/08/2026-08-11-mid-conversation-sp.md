@@ -229,3 +229,4 @@ response = client.beta.messages.create(
 - **不放不可信内容**:Claude 把系统内容当 operator 指令执行,**不要**把原始工具输出、检索文档、网页内容等外部文本直接放进系统消息(会赋予其 operator 级权威),这类数据应保留在 `tool_result` 块中,并继续遵循防越狱/防注入的最佳实践。
 
 
+
