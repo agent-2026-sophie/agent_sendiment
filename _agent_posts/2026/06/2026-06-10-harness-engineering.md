@@ -3,7 +3,7 @@ title: harness engineering
 date: 2026-06-10
 author: Sophie
 tags: [agent, harness]
-excerpt: TODO
+excerpt: 给模型好的上下文、好的工具、可读的环境 — 这就是「为 Agent 打造专属工作室」的全部。
 ---
 > https://mp.weixin.qq.com/s/ERSjcq9YURHvlsdTUv_Paw
 
@@ -45,6 +45,7 @@ MCP（原子动作·常驻上下文）：一次性挂在上下文里，提供基
 Skill（可见的 SOP·按需激活）：把成熟打法（CI Debug、审查清单）固化成可执行文件夹，在主会话里按步骤跑。skill.md + run.sh + examples/。Skill 的核心是告诉模型你怎么样来用这些工具——相当于把领域知识直接交给了模型，并且是渐序式加载，降低了上下文窗口消耗。
 Sub Agent（黑盒外包·并行大脑）：完全独立的会话，上下文隔离 — 适合超长任务拆解。例：Explore 模式 → 一起 3 个并行子 Agent 探索不同微服务，最后汇总 Summary。既然上下文窗口不够，我没办法在同一个上下文里解决所有问题，就把子任务交给 Sub Agent 来解决。
 核心思路：用架构隔离，对抗长任务的熵增 — 原子动作 → 固化打法 → 并行外包。
+
 
 
 
